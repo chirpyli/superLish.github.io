@@ -12,3 +12,12 @@ vendor
 # npm dependencies
 node_modules
 package-lock.json
+
+# jekyll
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+.vscode/
+.idea/

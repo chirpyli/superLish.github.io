@@ -5,7 +5,7 @@ theme: jekyll-theme-chirpy
 
 # Only if your site type is GitHub Project sites and doesn't have a custom domain,
 # change below value to '/projectname'.
-baseurl: ''
+baseurl: '/superLish.github.io'
 
 # the HTML language tag › https://www.w3.org/International/questions/qa-choosing-language-tags
 lang: en-US
@@ -17,7 +17,7 @@ timezone: Asia/Shanghai
 # --------------------------
 title: ChirpyLi                          # the main title
 
-tagline: A text-focused Jekyll theme   # it will display as the sub-title
+tagline: love yourself   # it will display as the sub-title
 
 description: >-                        # used by seo meta and the atom feed
   A minimal, portfolio, sidebar,
@@ -37,7 +37,7 @@ twitter:
 
 social:
   name: lisheng                  # it will shows as the copyright owner in Footer
-  email: example@doamin.com             # change to your email address
+  email: s_lisheng@163.com             # change to your email address
   links:
     # The first element serves as the copyright owner's link
     # - https://twitter.com/username      # change to your twitter homepage

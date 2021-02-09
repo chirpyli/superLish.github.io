@@ -1,7 +1,7 @@
 ---
 title: 日志库的设计思路
 author: lisheng
-date: 2021-02-09 08:55:00 +0800
+date: 2017-09-09 08:55:00 +0800
 categories: [Blogging, Backend]
 tags: [log]
 ---

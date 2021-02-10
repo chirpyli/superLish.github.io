@@ -98,7 +98,7 @@ kramdown:
   syntax_highlighter: rouge
   syntax_highlighter_opts:   # Rouge Options › https://github.com/jneen/rouge#full-options
     css_class: highlight
-    default_lang: console
+    # default_lang: console
     span:
       line_numbers: false
     block:
@@ -154,7 +154,9 @@ exclude:
   - vendor
   - Gemfile
   - Gemfile.lock
-  - jekyll-theme-chirpy.gemspec
+  - '*.gem'
+  - '*.gemspec'
+  # - jekyll-theme-chirpy.gemspec
   - tools
   - docs
   - README.md

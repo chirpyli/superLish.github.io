@@ -6,7 +6,7 @@
 
 如何关闭？
 ```json
-默认设置
+  //默认设置
   // Controls if opened editors show as preview. Preview editors are reused until they are kept (e.g. via double click or editing) and show up with an italic font style.
   "workbench.editor.enablePreview": true,
 ```

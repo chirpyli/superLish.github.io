@@ -2,7 +2,7 @@
 title: docker及docker-compose安装
 author: lisheng
 date: 2018-02-09 13:25:00 +0800
-categories: [Blogging, Backend]
+categories: [CS, Docker]
 tags: [docker, docker-compose]
 ---
 

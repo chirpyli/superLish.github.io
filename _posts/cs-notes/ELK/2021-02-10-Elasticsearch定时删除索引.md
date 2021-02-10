@@ -1,3 +1,12 @@
+---
+title: Elasticsearch定时删除索引
+author: lisheng
+date: 2018-12-08 13:25:00 +0800
+categories: [CS, ELK]
+tags: [ELK]
+---
+
+
 在Elasticsearch中，我们常常需要按时间来建立索引，以便我们今后的使用与管理，同时我们也经常按时间去删除一些老的数据。比如只保留最近3天的数据，只需将超多3天的索引数据删除就好了。删除索引有很多种方法，你可以自己编写脚本删除索引，也可以手动删除索引```curl -XDELETE http://127.0.0.1:9200/index-name```，这里使用Curator工具删除索引。
 
 #### Curator

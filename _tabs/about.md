@@ -6,4 +6,4 @@ order: 4
 
 
 #### About Me
-Graduate from njau, now is a Rust developer. 
+Graduate from njau, now is a Rust developer.

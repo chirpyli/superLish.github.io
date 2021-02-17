@@ -1,3 +1,9 @@
+---
+title: ProtocolBuffers工作原理
+date: 2020-03-04 08:55:00 +0800
+categories: [CS, Backend]
+---
+
 这里记录一下学习与使用Protocol Buffer的笔记，优点缺点如何使用这里不再叙述，重点关注与理解Protocol Buffers的工作原理，其大概实现。
 
 我们经常使用Protocol Buffer进行序列化与反序列化。理解Protocol Buffer的工作原理，就要理解序列化与反序列化。
@@ -24,9 +30,11 @@ Varint编码是一种变长的编码方式，核心思想是**对数值越小的
 可以参考下图加深理解：
 
 编码示例：
+
 ![image](https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy85NDQzNjUtM2U4OWViOWM1MjU2OWZhNS5wbmc?x-oss-process=image/format,png)
 
 解码示例：
+
 ![image](https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy85NDQzNjUtMmMwOGRkNTZiZmUwY2JhNS5wbmc?x-oss-process=image/format,png)
 
 还有一个问题：就是负数时怎么办？计算机中数值用补码形式表示和存储（负数在计算机中往往用最位1来表示负数，0表示正数，负数的补码最高位为1），那按Varint编码方式所有的负数都需要增加一个字节表示，这是不能被接受的，解决方法便是下面要讲的zigzag编码。
@@ -50,6 +58,7 @@ Zigzag编码是一种变长的编码方式。zigzag按绝对值升序排列，�
 
 
 这里只重点讲Varint编码和Zigzag编码，像string、double等类型这里不再描述，可参考文后的参考文档。
+
 ![image](https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy85NDQzNjUtN2YyODhmN2FlZjdkNmQxNS5wbmc?x-oss-process=image/format,png)
 
 ### T-L-V的数据存储方式

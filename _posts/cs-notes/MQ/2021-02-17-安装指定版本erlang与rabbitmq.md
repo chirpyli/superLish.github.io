@@ -1,3 +1,10 @@
+---
+date: 2017-09-29 08:55:00 +0800
+categories: [CS, Backend]
+tags: [rabbitmq]
+---
+
+
 安装部署Rabbitmq的时候要注意erlang与rabbitmq的版本问题，可参考
 [RabbitMQ Erlang Version Requirements](http://www.rabbitmq.com/which-erlang.html)选择对应的版本进行安装部署。
 

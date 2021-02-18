@@ -1,12 +1,17 @@
+---
+title: Rust中的Arc与Rc
+date: 2020-11-23 20:55:00 +0800
+categories: [CS, Rust]
+tags: [Rust]
+---
+
 ### Rc
-单线程引用计数。不是线程安全的，如果需要线程间引用计数可用`Arc`。注意他们之间的实现区别。关键源码实现如下，重点可关注`Clone`和`Drop`的实现细节。
+单线程引用计数。不是线程安全的，如果需要线程间引用计数可用`Arc`。注意他们之间的实现区别。关键源码实现如下，重点可关注`Clone`和`Drop`以及`new`的实现细节。
 ```rust
-//! Single-threaded reference-counting pointers. 'Rc' stands for 'Reference
-//! Counted'.
+//! Single-threaded reference-counting pointers. 'Rc' stands for 'Reference Counted'.
 
 // This is repr(C) to future-proof against possible field-reordering, which
-// would interfere with otherwise safe [into|from]_raw() of transmutable
-// inner types.
+// would interfere with otherwise safe [into|from]_raw() of transmutable inner types.
 #[repr(C)]
 struct RcBox<T: ?Sized> {
     strong: Cell<usize>,    // 注意这里与Arc的区别，不是原子操作
@@ -14,8 +19,7 @@ struct RcBox<T: ?Sized> {
     value: T,
 }
 
-/// A single-threaded reference-counting pointer. 'Rc' stands for 'Reference
-/// Counted'.
+/// A single-threaded reference-counting pointer. 'Rc' stands for 'Reference Counted'.
 #[cfg_attr(not(test), rustc_diagnostic_item = "Rc")]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct Rc<T: ?Sized> {
@@ -31,8 +35,7 @@ impl<T: ?Sized> !marker::Sync for Rc<T> {}
 impl<T: ?Sized> Rc<T> {
     #[inline(always)]
     fn inner(&self) -> &RcBox<T> {
-        // This unsafety is ok because while this Rc is alive we're guaranteed
-        // that the inner pointer is valid.
+        // This unsafety is ok because while this Rc is alive we're guaranteed that the inner pointer is valid.
         unsafe { self.ptr.as_ref() }
     }
 
@@ -72,9 +75,7 @@ impl<T: ?Sized> Deref for Rc<T> {
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<T: ?Sized> Clone for Rc<T> {
     /// Makes a clone of the `Rc` pointer.
-    ///
-    /// This creates another pointer to the same allocation, increasing the
-    /// strong reference count.
+    /// This creates another pointer to the same allocation, increasing the strong reference count.
     #[inline]
     fn clone(&self) -> Rc<T> {
         self.inner().inc_strong();      // 克隆一次，引用计数+1
@@ -85,10 +86,8 @@ impl<T: ?Sized> Clone for Rc<T> {
 #[stable(feature = "rust1", since = "1.0.0")]
 unsafe impl<#[may_dangle] T: ?Sized> Drop for Rc<T> {
     /// Drops the `Rc`.
-    ///
     /// This will decrement the strong reference count. If the strong reference
-    /// count reaches zero then the only other references (if any) are
-    /// [`Weak`], so we `drop` the inner value.
+    /// count reaches zero then the only other references (if any) are [`Weak`], so we `drop` the inner value.
     fn drop(&mut self) {
         unsafe {
             self.inner().dec_strong();      // 引用计数-1
@@ -96,8 +95,7 @@ unsafe impl<#[may_dangle] T: ?Sized> Drop for Rc<T> {
                 // destroy the contained object
                 ptr::drop_in_place(Self::get_mut_unchecked(self));
 
-                // remove the implicit "strong weak" pointer now that we've
-                // destroyed the contents.
+                // remove the implicit "strong weak" pointer now that we've destroyed the contents.
                 self.inner().dec_weak();
 
                 if self.inner().weak() == 0 {
@@ -114,10 +112,9 @@ unsafe impl<#[may_dangle] T: ?Sized> Drop for Rc<T> {
 ### Arc
 与`Rc`的区别主要是线程安全的引用计数。实现上最大的不同是用原子操作进行引用记数以实现线程间安全。但是需要强调一点的是，`Arc`共享引用的是不可变数据。如果允许可变引用，则可能发生在多个线程中同时修改数据的情况，这是不安全的，如果需要修改数据，则需要给内部数据加锁(例如：`Mutex,RwLock`)以保证线程间写安全，所以Rust的代码中经常会看到`Arc<Mutxe<T>>`和`Arc<RwLock<T>>`。
 
-以下是`Arc`的关键实现代码，详细代码见[sync.rs](https://doc.rust-lang.org/src/alloc/sync.rs.html#207-210)，重点同样是关注`Clone`和`Drop`的实现。
+以下是`Arc`的关键实现代码，详细代码见[sync.rs](https://doc.rust-lang.org/src/alloc/sync.rs.html#207-210)，重点同样是关注`Clone`和`Drop`以及`new`的实现。
 ```rust
-/// A thread-safe reference-counting pointer. 'Arc' stands for 'Atomically
-/// Reference Counted'.
+/// A thread-safe reference-counting pointer. 'Arc' stands for 'Atomically Reference Counted'.
 ///
 /// The type `Arc<T>` provides shared ownership of a value of type `T`,
 /// allocated in the heap. Invoking [`clone`][clone] on `Arc` produces
@@ -129,8 +126,7 @@ unsafe impl<#[may_dangle] T: ?Sized> Drop for Rc<T> {
 /// Shared references in Rust disallow mutation by default, and `Arc` is no
 /// exception: you cannot generally obtain a mutable reference to something
 /// inside an `Arc`. If you need to mutate through an `Arc`, use
-/// [`Mutex`][mutex], [`RwLock`][rwlock], or one of the [`Atomic`][atomic]
-/// types.
+/// [`Mutex`][mutex], [`RwLock`][rwlock], or one of the [`Atomic`][atomic] types.
 ///
 /// ## Thread Safety
 ///
@@ -140,9 +136,7 @@ unsafe impl<#[may_dangle] T: ?Sized> Drop for Rc<T> {
 /// are not sharing reference-counted allocations between threads, consider using
 /// [`Rc<T>`] for lower overhead. [`Rc<T>`] is a safe default, because the
 /// compiler will catch any attempt to send an [`Rc<T>`] between threads.
-/// However, a library might choose `Arc<T>` in order to give library consumers
-/// more flexibility.
-
+/// However, a library might choose `Arc<T>` in order to give library consumers more flexibility.
 #[cfg_attr(not(test), rustc_diagnostic_item = "Arc")]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct Arc<T: ?Sized> {
@@ -166,8 +160,7 @@ impl<T: ?Sized> Arc<T> {
 }
 
 // This is repr(C) to future-proof against possible field-reordering, which
-// would interfere with otherwise safe [into|from]_raw() of transmutable
-// inner types.
+// would interfere with otherwise safe [into|from]_raw() of transmutable inner types.
 #[repr(C)]
 struct ArcInner<T: ?Sized> {
     strong: atomic::AtomicUsize,        // 强引用记数，线程安全
@@ -186,14 +179,6 @@ unsafe impl<T: ?Sized + Sync + Send> Sync for ArcInner<T> {}
 
 impl<T> Arc<T> {
     /// Constructs a new `Arc<T>`.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use std::sync::Arc;
-    ///
-    /// let five = Arc::new(5);
-    /// ```
     #[inline]
     #[stable(feature = "rust1", since = "1.0.0")]
     pub fn new(data: T) -> Arc<T> {
@@ -268,9 +253,6 @@ unsafe impl<#[may_dangle] T: ?Sized> Drop for Arc<T> {
         // Also note that the Acquire fence here could probably be replaced with an
         // Acquire load, which could improve performance in highly-contended
         // situations. See [2].
-        //
-        // [1]: (www.boost.org/doc/libs/1_55_0/doc/html/atomic/usage_examples.html)
-        // [2]: (https://github.com/rust-lang/rust/pull/41714)
         acquire!(self.inner().strong);
 
         unsafe {
@@ -291,4 +273,34 @@ impl<T: ?Sized> Deref for Arc<T> {
 ```
 
 ### 示例代码
-示例代码间[arc](./arc)
+```rust
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::rc::Rc;
+
+fn main() {
+    println!("Arc or Rc!");
+
+    let r0 = Rc::new(10);
+    let r1 = r0.clone();
+    println!("rc count: {}. r0 ptr: {:?}, r1 ptr: {:?}", Rc::strong_count(&r0), Rc::as_ptr(&r0), Rc::as_ptr(&r1));
+
+    let ar0 = Arc::new(10);
+    let ar1 = ar0.clone();
+    let armut0 = Arc::new(Mutex::new(100));     // 要想写操作，必须加锁，如果不加锁的话，也可以实现写操作，但不是写的同一个地址，线程间的数据会不一致。
+    let armut1 = armut0.clone();
+    let handle = std::thread::spawn(move || {
+        let mut lock = armut1.lock().unwrap();
+        *lock = *ar1;
+        println!("ar1 ptr: {:?}. mute change to {}", Arc::as_ptr(&ar1), *lock);
+    });
+    handle.join();
+    println!("arc count: {}. arc0 ptr: {:?}. arcmut0 value: {}", Arc::strong_count(&ar0), Arc::as_ptr(&ar0), *armut0.lock().unwrap());
+}
+
+// 运行结果：
+// Arc or Rc!
+// rc count: 2. r0 ptr: 0x559d87cb6b60, r1 ptr: 0x559d87cb6b60
+// ar1 ptr: 0x559d87cb6b80. mute change to 10
+// arc count: 1. arc0 ptr: 0x559d87cb6b80. arcmut0 value: 10
+```

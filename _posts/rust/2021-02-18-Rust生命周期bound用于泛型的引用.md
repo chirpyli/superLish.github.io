@@ -1,3 +1,10 @@
+---
+title: Rust生命周期bound用于泛型的引用
+date: 2017-10-17 20:55:00 +0800
+categories: [CS, Rust]
+tags: [Rust]
+---
+
 在实际编程中，可能会出现泛型引用这种情况，我们会编写如下的代码：
 ```rust
 struct Inner<'a, T> {

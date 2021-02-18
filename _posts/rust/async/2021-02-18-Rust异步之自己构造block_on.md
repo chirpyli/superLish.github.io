@@ -1,3 +1,10 @@
+---
+title: Rust异步之自己构造block_on
+date: 2021-02-05 20:55:00 +0800
+categories: [CS, Rust]
+tags: [Rust, async]
+---
+
 ### 一个`block_on`代码示例
 
 我们在进行异步编程时，经常会有下面形式的代码：
@@ -275,7 +282,7 @@ fn main() {
 
 }
 ```
-完整代码见[block_on](../block_on)，运行后有如下日志：
+完整代码见[block_on](https://github.com/superLish/superLish.github.io/tree/master/_posts/rust/async/block_on)，运行后有如下日志：
 ```log
 2021-02-05 17:15:06,010 INFO  [block_on] build your own block_on.
 2021-02-05 17:15:06,010 INFO  [block_on::executor] create a raw waker.      创建Waker
@@ -296,7 +303,7 @@ fn main() {
 - `Executor`： 调度并执行future任务，可以有多种形式，一般具体执行任务的都是线程池。
 - `Reactor`：  异步的实现难点，当Future未就绪怎么办，怎么知道什么时候就绪呢？ 上层的多数Future，多数会落到底层的IO，timer等底层异步实现，很容易联想到epoll等。当未就绪时，在这里注册Waker，等Reactor发现某个任务就绪时，通过之前注册的Waker，唤醒任务到`Execuor`执行。
 
-到这里，我们自己构建了block_on，也理解了其工作过程，后面再看tokio的代码时就会清晰很多，也会更容易理解。
+到这里，我们自己构建了`block_on`，也理解了其工作过程，后面再看tokio的代码时就会清晰很多，也会更容易理解。
 
 
 ---

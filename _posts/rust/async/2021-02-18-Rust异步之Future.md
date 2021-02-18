@@ -1,4 +1,11 @@
-对异步的学习，我们先从Future开始，学习异步的实现原理。等理解了异步是怎么实现的后，再学习Rust异步编程涉及的2个库（futures、tokio）的时候就容易理解多了。
+---
+title: Rust异步之Future
+date: 2020-05-09 20:55:00 +0800
+categories: [CS, Rust]
+tags: [Rust, async]
+---
+
+对异步的学习，我们先从`Future`开始，学习异步的实现原理。等理解了异步是怎么实现的后，再学习Rust异步编程涉及的2个库（futures、tokio）的时候就容易理解多了。
 
 ### Future
 rust中`Future`的定义如下，一个`Future`可以理解为一段供将来调度执行的代码。我们为什么需要异步呢，异步相比同步高效在哪里呢？就是异步环境下，当前调用就绪时则执行，没有就绪时则不等待任务就绪，而是返回一个`Future`，等待将来任务就绪时再调度执行。当然，这里返回`Future`时关键的是要声明事件什么时候就绪，就绪后怎么唤醒这个任务到调度器去调度执行。
@@ -19,7 +26,7 @@ pub enum Poll<T> {
     Pending,
 }
 ```
-可能到这里你还是云里雾里，我们写一段代码，帮助你理解。完整代码见：[future_study](./future_study)
+可能到这里你还是云里雾里，我们写一段代码，帮助你理解。完整代码见：[future_study](https://github.com/superLish/superLish.github.io/tree/master/_posts/rust/async/future_study)
 ```rust
 use futures;
 use std::{future::Future, pin::Pin, sync::{Arc, Mutex}, task::{Context, Poll, Waker}, thread, time::Duration};
@@ -106,7 +113,7 @@ pub struct Waker {
 }
 ```
 
-现在你应该对`Future`有新的理解了，上面的代码，我们并没有实现调度器，而是使用的`futures`库中提供的一个调度器去执行，下面自己实现一个调度器，看一下它的原理。而在Rust中，真正要用的话，还是要学习`tokio`库，这里我们只是为了讲述一下实现原理，以便于理解异步是怎么一回事。完整代码见：[future_study](./future_study)， 关键代码如下：
+现在你应该对`Future`有新的理解了，上面的代码，我们并没有实现调度器，而是使用的`futures`库中提供的一个调度器去执行，下面自己实现一个调度器，看一下它的原理。而在Rust中，真正要用的话，还是要学习`tokio`库，这里我们只是为了讲述一下实现原理，以便于理解异步是怎么一回事。关键代码如下：
 ```rust
 use std::{future::Future, pin::Pin, sync::{Arc, Mutex}, task::{Context, Poll, Waker}, thread, time::Duration};
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
@@ -205,7 +212,7 @@ future ready. execute poll to return.
 return value: timer done.
 executor run the future task, is ready. the future task is done.
 ```
-第一次调度的时候，因为还没有就绪，在Pending状态，告诉这个任务，后面就绪是怎么唤醒该任务。然后当事件就绪的时候，因为前面告诉了如何唤醒，按方法唤醒了该任务去调度执行。其实，在实际应用场景中，难的地方还在于，你怎么知道什么时候事件就绪，去唤醒任务，我们很容易联想到Linux系统的epoll，tokio等底层，也是基于epoll实现的。通过epoll，我们就能方便的知道事件什么时候就绪了。
+第一次调度的时候，因为还没有就绪，在`Pending`状态，告诉这个任务，后面就绪是怎么唤醒该任务。然后当事件就绪的时候，因为前面告诉了如何唤醒，按方法唤醒了该任务去调度执行。其实，在实际应用场景中，难的地方还在于，你怎么知道什么时候事件就绪，去唤醒任务，我们很容易联想到Linux系统的epoll，tokio等底层，也是基于epoll实现的。通过epoll，我们就能方便的知道事件什么时候就绪了。
 
 
 

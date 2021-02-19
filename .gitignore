@@ -36,3 +36,5 @@ Cargo.lock
 **/.idea
 **/.vscode
 **/target/
+
+console_error.log

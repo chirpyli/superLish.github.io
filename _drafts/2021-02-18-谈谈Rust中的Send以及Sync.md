@@ -1,8 +1,12 @@
 
-谈一下Rust在并发编程中一定会碰到的`Send`以及`Sync`。可参考[Send and Sync](https://doc.rust-lang.org/nomicon/send-and-sync.html)。里面有如下两句，记住它：
+谈一下Rust在并发编程中一定会碰到的`Send`以及`Sync`，他们一起保证了Rust的线程安全。可参考[Send and Sync](https://doc.rust-lang.org/nomicon/send-and-sync.html)。里面有如下两句，记住它：
 - **A type is Send if it is safe to send it to another thread**
 - **A type is Sync if it is safe to share between threads (T is Sync if and only if &T is Send).**
 
+翻译过来的意思就是
+- `Send`表示数据能安全地被`move`到另一个线程
+- `Sync`表示数据能在多个线程中被同时安全地访问
+>这里“安全”指不会发生数据的竞争 (race condition)。
 ### Send
 当一个类型`T`实现了`Send`，表示这个类型的所有权可以在线程间安全的转移。例如，我们有一个连接两个线程的通道，我们想要能够向通道发送些数据到另一个线程。因此，我们要确保这个类型实现了`Send`。`Send`定义如下:
 ```rust
@@ -98,3 +102,9 @@ impl<T: ?Sized> !Sync for *const T {}
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<T: ?Sized> !Sync for *mut T {}
 ```
+
+
+---
+参考文档：          
+- [Rust 中 Send 与 Sync 有什么区别?](https://lotabout.me/2018/QQA-send-vs-sync-in-rust/)
+- [线程安全](https://zhuanlan.zhihu.com/p/24142191)

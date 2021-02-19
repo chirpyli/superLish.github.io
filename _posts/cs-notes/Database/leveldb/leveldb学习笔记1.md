@@ -1,6 +1,11 @@
-
+---
+title: leveldb学习笔记
+date: 2020-01-09 13:25:00 +0800
+categories: [CS, Database]
+tags: [leveldb]
+---
 ### leveldb程序示例
-使用leveldb，第一步是一定是设置相关配置，然后创建一个新的数据库或者打开一个已存在的数据库。示例[leveldb_demo.cpp](./leveldb_demo.cpp)如下：
+使用leveldb，第一步是一定是设置相关配置，然后创建一个新的数据库或者打开一个已存在的数据库。示例如下：
 ```c++
 #include <cassert>
 #include"leveldb/db.h"
@@ -34,7 +39,7 @@ int main() {
 }
 ```
 编译`g++ leveldb_demo.cpp -lleveldb`，运行后，在`data`目录下生成了一些文件，因为目前数据非常少，还少了一些sst数据文件。结果如下：
-```
+```c
 data/
 ├── 000007.log  // 数据日志
 ├── CURRENT     // 文件内容为MANIFEST-000006，保存最新的MANIFEST
@@ -47,7 +52,7 @@ data/
 
 ### `DB`及`Options`
 
-###### `DB`
+#### `DB`
 最开始是`leveldb::DB* db;`，`DB`是一个抽象类，是对KV操作的抽象接口， 具体实现是在`DBImpl`，后面会分析。其操作有点类似于`HashMap`一类的数据结构。定义如下：
 ```c++
 // A DB is a persistent ordered map from keys to values. A DB is safe for concurrent access from multiple threads without any external synchronization.
@@ -127,9 +132,9 @@ class DB {
   void operator=(const DB&);
 };
 ```
-对KV数据库最基本的操作就是`Open`，`Put`，`Get`，`Delete`，我们后面会逐个分析。先看一下创建一个数据库实例或打开已有的数据库实例`Open`的参数`Options`。这个对宏观的理解leveldb非常重要。
+对KV数据库最基本的操作就是`Open`，`Put`，`Get`，`Delete`，先看一下创建一个数据库实例或打开已有的数据库实例`Open`的参数`Options`。这个对宏观的理解leveldb非常重要。其他的这里不再列出，阅读源码时可重点关注。
 
-###### `Options`
+#### `Options`
 `leveldb::Options options;`可以进行相关的配置。但需要注意的是，数据库的某些配置最好不要轻易改变，需要考虑配置修改前后程序是否还会正常工作，比如自定义了`Key`比较大小的`Comparator`，因为`Key`排序对leveldb至关重要，如果修改前后的Key比较大小不相容，就可能会造成异常问题，所以必须保证前后定义的比较器有相同的名字和完全相同的key顺序。另外有些配置是可以动态更改的。后面几个数值相关的参数会影响性能，比如`write_buffer_size`。定义如下：
 ```c++
 // Options to control the behavior of a database (passed to DB::Open)
@@ -176,14 +181,12 @@ struct LEVELDB_EXPORT Options {
   // Number of keys between restart points for delta encoding of keys. This parameter can be changed dynamically.  Most clients should leave this parameter alone.
   int block_restart_interval = 16;
 
-  // Leveldb will write up to this amount of bytes to a file before
-  // switching to a new one.
+  // Leveldb will write up to this amount of bytes to a file before switching to a new one.
   // Most clients should leave this parameter alone.  However if your
   // filesystem is more efficient with larger files, you could
   // consider increasing the value.  The downside will be longer
   // compactions and hence longer latency/performance hiccups.
-  // Another reason to increase this parameter might be when you are
-  // initially populating a large database.
+  // Another reason to increase this parameter might be when you are initially populating a large database.
   size_t max_file_size = 2 * 1024 * 1024;
 
   // Compress blocks using the specified compression algorithm.  This parameter can be changed dynamically.
@@ -198,7 +201,7 @@ struct LEVELDB_EXPORT Options {
 };
 ```
 设置好配置参数后，就可以进入下一步，创建数据库实例了。
-###### `DB::Open`
+#### `DB::Open`
 创建或者打开一个数据库实例，代码如下：
 ```c++
 Status DB::Open(const Options& options, const std::string& dbname, DB** dbptr) {
@@ -306,8 +309,7 @@ class DBImpl : public DB {
     InternalKey tmp_storage;   // Used to keep track of compaction progress
   };
 
-  // Per level compaction stats.  stats_[level] stores the stats for
-  // compactions that produced data for the specified "level".
+  // Per level compaction stats.  stats_[level] stores the stats for compactions that produced data for the specified "level".
   struct CompactionStats {
     CompactionStats() : micros(0), bytes_read(0), bytes_written(0) {}
 
@@ -341,7 +343,6 @@ class DBImpl : public DB {
 
   // Compact the in-memory write buffer to disk.  Switches to a new
   // log-file/memtable and writes a new descriptor iff successful.
-  // Errors are recorded in bg_error_.
   void CompactMemTable() EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 
   Status RecoverLogFile(uint64_t log_number, bool last_log, bool* save_manifest,

@@ -4,8 +4,6 @@ date: 2015-03-12 08:55:00 +0800
 categories: [CS, C/C++]
 ---
 
-《C++PrimerPlus》读书笔记
-
 
 ### 函数模板
 函数模板是通用的函数描述，使用泛型来定义函数，其中的泛型可用具体的类型替换。通过将类型作为参数传递给模板，可使编译器生成该类型的函数。代码见附录`function_template.cpp`
@@ -77,7 +75,7 @@ double marm() noexcept;     //marm() doesn't throw an exception.
 
 
 
----
+
 ### 附录
 #### function_template.cpp
 ```c++

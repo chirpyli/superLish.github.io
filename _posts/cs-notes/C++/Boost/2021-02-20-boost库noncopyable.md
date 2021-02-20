@@ -2,7 +2,7 @@
 title: boost库之noncopyable
 date: 2017-03-12 08:55:00 +0800
 categories: [CS, C/C++]
-tags: [C/C++, boost]
+tags: [boost]
 ---
 
 

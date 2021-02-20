@@ -2,7 +2,6 @@
 title: 《C++PrimerPlus》读书笔记
 date: 2015-03-12 08:55:00 +0800
 categories: [CS, C/C++]
-tags: [C/C++]
 ---
 
 《C++PrimerPlus》读书笔记

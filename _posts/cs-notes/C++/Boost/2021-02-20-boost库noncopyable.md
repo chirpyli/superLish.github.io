@@ -1,3 +1,12 @@
+---
+title: boost库之noncopyable
+date: 2017-03-12 08:55:00 +0800
+categories: [CS, C/C++]
+tags: [C/C++, boost]
+---
+
+
+
 ### noncopyable
 noncopyable允许程序轻松地实现一个禁止拷贝的类，noncopyable位于名字空间boost，为了使用noncopyable组件，需要包含头文件
 ```c++
@@ -16,9 +25,9 @@ private:
 ```
 
 ### 用法
-noncopyable为实现不可拷贝的类提供了简单清晰的解决方案：从boost::noncopyable派生即可。当我们的自定义类是noncopyable的子类时就会自动私有化父类noncopyable的拷贝构造函数，从而禁止用户从外部访问拷贝构造函数和拷贝赋值函数。
+noncopyable为实现不可拷贝的类提供了简单清晰的解决方案：从`boost::noncopyable`派生即可。当我们的自定义类是noncopyable的子类时就会自动私有化父类noncopyable的拷贝构造函数，从而禁止用户从外部访问拷贝构造函数和拷贝赋值函数。
 
-示例代码[noncopyable.cpp](./noncopyable.cpp)
+示例代码
 ```c++
 #include<iostream>
 #include<stdio.h>

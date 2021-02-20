@@ -38,3 +38,5 @@ Cargo.lock
 **/target/
 
 console_error.log
+
+**/a.out

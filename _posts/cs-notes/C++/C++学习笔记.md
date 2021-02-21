@@ -91,3 +91,31 @@ int main() {
     return 0;
 }
 ```
+
+
+#### 13. 运行下面的代码会发生什么？
+```c++
+#include<iostream>
+using namespace std;
+
+class A {
+public:
+	void print1() {
+		cout << this << endl;
+	}
+
+	virtual void print2() {
+		cout << this << endl;
+	}
+};
+
+int main() {
+	A* a = nullptr;
+	a->print1();    // 输出0
+	a->print2();    // 崩溃
+
+	return 0;
+}
+
+`a->print1()`正常输出0。代码翻译过来就是`print1(A* a)`，函数调用的时候变成`print1(nullptr)`，`this`指针此时为`nullptr`，所以输出值为0。     
+`a->print2()`没有正常输出，因为`print2`是虚函数，调用虚函数需要访问对象实例头部的虚函数表指针，再通过这个虚函数表指针访问虚函数表，再JUMP到具体的虚函数实现。此时并没有对象实例，无法访问到头部的虚函数表指针，所以崩溃。

@@ -55,8 +55,9 @@ Rust异步编程
 - [tonic](https://github.com/hyperium/tonic): Rust原生实现的grpc。
 - [mio](https://github.com/tokio-rs/mio) : I/O库，简单封装了epoll（对Linux操作系统来讲）。
 - [tokio](https://github.com/tokio-rs/tokio):实现了异步、非阻塞I/O、事件驱动，底层是mio。
+- [crossbeam](https://github.com/crossbeam-rs/crossbeam): 并发编程的话经常会用到
+- [clap](https://github.com/clap-rs/clap): 命令行工具
 
->mio从之前的v0.6现已到v0.7，而tokio也从v0.1到v0.2，尤其是tokio，之前v0.1变动比较大，所以实际项目中没有采用这个库，而是使用了原始的mio，真的很原始，写代码调试代码很累，代码比较离散，现在的v0.2，后面再有需要可以考虑使用了v0.2版本了。
 
 >gRPC的Rust实现，目前看有大概四五个版本实现，上面的两个版本实现个人认为是相对比较好的。
 

@@ -1,0 +1,36 @@
+syntax = "proto3";
+package netproto;
+
+service Network {
+    rpc hello (Hello) returns (Hello) {}
+    rpc pull_route_table (RouteTable) returns (RouteTable) {}
+    rpc route_message (RouteMessage) returns (RouteAck) {}
+}
+
+message Hello {
+    uint64 nodeid = 1;
+}
+
+message RouteTable {
+    uint64 nodeid = 1;  
+    repeated RouteItem item = 2;
+}
+
+
+message RouteItem {
+    uint64 dst = 1;
+    uint64 next = 2;
+    uint64 distance = 3;
+}
+
+message RouteMessage {
+    uint64 src = 1;
+    uint64 dst = 2;
+    bytes payload = 3;
+}
+
+message RouteAck {
+    uint64 src = 1;
+    uint64 dst = 2;
+    uint32 result = 3;
+}

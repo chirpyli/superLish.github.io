@@ -222,10 +222,10 @@ int main() {
     // swap_sort<int>(a, sizeof(a)/sizeof(int));
     // select_sort<int>(a, sizeof(a)/sizeof(int));
     // insert_sort<int>(a, sizeof(a)/sizeof(int));
-    // quick_sort<int>(a, sizeof(a)/sizeof(int));
+    quick_sort<int>(a, sizeof(a)/sizeof(int));
 
     // merge<int>(b, 0, 3, sizeof(b)/sizeof(int) - 1);
     // merge_sort<int>(a, 0, sizeof(a)/sizeof(int) - 1);
-    bucket_sort(a, sizeof(a)/sizeof(int));
+    // bucket_sort(a, sizeof(a)/sizeof(int));
     print_array<int>(a, sizeof(a)/sizeof(int));
 }

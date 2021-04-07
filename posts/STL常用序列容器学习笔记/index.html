@@ -1,0 +1,1569 @@
+<!DOCTYPE html><html lang="en-US" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="pv-cache-enabled" content="false"><meta name="generator" content="Jekyll v4.2.0" /><meta property="og:title" content="STL常用序列容器学习笔记" /><meta name="author" content="lisheng" /><meta property="og:locale" content="en_US" /><meta name="description" content="这里简要的记述一下STL常用容器的实现原理，要点等内容。" /><meta property="og:description" content="这里简要的记述一下STL常用容器的实现原理，要点等内容。" /><link rel="canonical" href="https://superlish.github.io/superLish.github.io/posts/STL%E5%B8%B8%E7%94%A8%E5%BA%8F%E5%88%97%E5%AE%B9%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" /><meta property="og:url" content="https://superlish.github.io/superLish.github.io/posts/STL%E5%B8%B8%E7%94%A8%E5%BA%8F%E5%88%97%E5%AE%B9%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" /><meta property="og:site_name" content="ChirpyLi" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2016-09-12T08:55:00+08:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="STL常用序列容器学习笔记" /><meta name="twitter:site" content="@twitter_username" /><meta name="twitter:creator" content="@lisheng" /><meta name="google-site-verification" content="google_meta_tag_verification" /> <script type="application/ld+json"> {"description":"这里简要的记述一下STL常用容器的实现原理，要点等内容。","url":"https://superlish.github.io/superLish.github.io/posts/STL%E5%B8%B8%E7%94%A8%E5%BA%8F%E5%88%97%E5%AE%B9%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/","headline":"STL常用序列容器学习笔记","dateModified":"2021-02-20T17:01:38+08:00","@type":"BlogPosting","datePublished":"2016-09-12T08:55:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://superlish.github.io/superLish.github.io/posts/STL%E5%B8%B8%E7%94%A8%E5%BA%8F%E5%88%97%E5%AE%B9%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"},"author":{"@type":"Person","name":"lisheng"},"@context":"https://schema.org"}</script><title>STL常用序列容器学习笔记 | ChirpyLi</title><link rel="shortcut icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/superLish.github.io/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/superLish.github.io/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/superLish.github.io/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/superLish.github.io/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/superLish.github.io/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/superLish.github.io/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/superLish.github.io/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/superLish.github.io/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/superLish.github.io/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/superLish.github.io/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/superLish.github.io/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/superLish.github.io/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/superLish.github.io/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/superLish.github.io/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/superLish.github.io/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/superLish.github.io/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials"><link rel="dns-prefetch" href="https://www.google-analytics.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="stylesheet" href="/superLish.github.io/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/superLish.github.io/assets/js/dist/post.min.js"></script> <script defer src="/superLish.github.io/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id="></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', ''); }); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/superLish.github.io/" alt="avatar" class="mx-auto"> <img src="https://cdn.jsdelivr.net/gh/cotes2020/chirpy-images/commons/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/superLish.github.io/">ChirpyLi</a></div><div class="site-subtitle font-italic">love yourself</div></div><ul class="w-100"><li class="nav-item"> <a href="/superLish.github.io/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/superLish.github.io/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/superLish.github.io/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/superLish.github.io/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/superLish.github.io/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/superLish" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/superLish.github.io/"> Posts </a> </span> <span>STL常用序列容器学习笔记</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>STL常用序列容器学习笔记</h1><div class="post-meta text-muted d-flex flex-column"><div> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Mon, Sep 12, 2016, 8:55 AM +0800" > Sep 12, 2016 <i class="unloaded">2016-09-12T08:55:00+08:00</i> </span> by <span class="author"> lisheng </span></div><div> <span> Updated <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Sat, Feb 20, 2021, 5:01 PM +0800" > Feb 20 <i class="unloaded">2021-02-20T17:01:38+08:00</i> </span> </span> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="6165 words">34 min</span></div></div><div class="post-content"><p>这里简要的记述一下STL常用容器的实现原理，要点等内容。</p><h2 id="vector">vector</h2><p><code class="language-plaintext highlighter-rouge">vector</code>是比较常用的stl容器，用法与数组是非类似，其内部实现是连续空间分配，与数组的不同之处在于可弹性增加空间，而<code class="language-plaintext highlighter-rouge">array</code>是静态空间，分配后不能动态扩展。<code class="language-plaintext highlighter-rouge">vecotr</code>的实现较为简单，主要的关键点在于当空间不足时，会新分配当前空间2倍的空间，将旧空间数据拷贝到新空间，然后删除旧空间。</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="k">struct</span> <span class="nc">_Vector_impl</span><span class="o">:</span> <span class="k">public</span> <span class="n">_Tp_alloc_type</span> <span class="p">{</span>
+    <span class="n">pointer</span> <span class="n">_M_start</span><span class="p">;</span>   <span class="c1">// 元素头</span>
+    <span class="n">pointer</span> <span class="n">_M_finish</span><span class="p">;</span>  <span class="c1">// 元素尾</span>
+    <span class="n">pointer</span> <span class="n">_M_end_of_storage</span><span class="p">;</span>  <span class="c1">// 可用空间尾，</span>
+          <span class="c1">// 省略部分代码...</span>
+<span class="p">};</span>
+</pre></table></code></div></div><p>这个是向尾部添加元素的代码实现，可以看到如果当前还有剩余空间的话，直接在尾部添加，如果没有剩余空间，则会动态扩展。</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+</pre><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">push_back</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span> <span class="o">!=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_end_of_storage</span><span class="p">)</span> <span class="p">{</span>
+	    <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">construct</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">,</span> <span class="n">__x</span><span class="p">);</span>
+	    <span class="o">++</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span>
+	  <span class="n">_M_realloc_insert</span><span class="p">(</span><span class="n">end</span><span class="p">(),</span> <span class="n">__x</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Alloc</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_Alloc</span><span class="o">&gt;::</span><span class="n">_M_realloc_insert</span><span class="p">(</span><span class="n">iterator</span> <span class="n">__position</span><span class="p">,</span> <span class="k">const</span> <span class="n">_Tp</span><span class="o">&amp;</span> <span class="n">__x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="n">size_type</span> <span class="n">__len</span> <span class="o">=</span> <span class="n">_M_check_len</span><span class="p">(</span><span class="n">size_type</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s">"vector::_M_realloc_insert"</span><span class="p">);</span>      <span class="c1">// 2倍当前大小</span>
+    <span class="k">const</span> <span class="n">size_type</span> <span class="n">__elems_before</span> <span class="o">=</span> <span class="n">__position</span> <span class="o">-</span> <span class="n">begin</span><span class="p">();</span>
+    <span class="n">pointer</span> <span class="n">__new_start</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_allocate</span><span class="p">(</span><span class="n">__len</span><span class="p">));</span>
+    <span class="n">pointer</span> <span class="n">__new_finish</span><span class="p">(</span><span class="n">__new_start</span><span class="p">);</span>
+    <span class="kr">__try</span> <span class="p">{</span>
+	  <span class="c1">// The order of the three operations is dictated by the C++11</span>
+	  <span class="c1">// case, where the moves could alter a new element belonging</span>
+	  <span class="c1">// to the existing vector.  This is an issue only for callers</span>
+	  <span class="c1">// taking the element by lvalue ref (see last bullet of C++11</span>
+	  <span class="c1">// [res.on.arguments]).</span>
+	  <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">construct</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">,</span> <span class="n">__new_start</span> <span class="o">+</span> <span class="n">__elems_before</span><span class="p">,</span> <span class="n">__x</span><span class="p">);</span>
+	  <span class="n">__new_finish</span> <span class="o">=</span> <span class="n">pointer</span><span class="p">();</span>
+
+	  <span class="n">__new_finish</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">__uninitialized_move_if_noexcept_a</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">,</span> <span class="n">__position</span><span class="p">.</span><span class="n">base</span><span class="p">(),</span> <span class="n">__new_start</span><span class="p">,</span> <span class="n">_M_get_Tp_allocator</span><span class="p">();</span>
+
+	  <span class="o">++</span><span class="n">__new_finish</span><span class="p">;</span>
+
+	  <span class="n">__new_finish</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">__uninitialized_move_if_noexcept_a</span><span class="p">(</span><span class="n">__position</span><span class="p">.</span><span class="n">base</span><span class="p">(),</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">,</span> <span class="n">__new_finish</span><span class="p">,</span> <span class="n">_M_get_Tp_allocator</span><span class="p">());</span>
+	<span class="p">}</span><span class="n">__catch</span><span class="p">(...)</span> <span class="p">{</span>
+	  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">__new_finish</span><span class="p">)</span>
+	    <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">,</span>
+				   <span class="n">__new_start</span> <span class="o">+</span> <span class="n">__elems_before</span><span class="p">);</span>
+	  <span class="k">else</span>
+	    <span class="n">std</span><span class="o">::</span><span class="n">_Destroy</span><span class="p">(</span><span class="n">__new_start</span><span class="p">,</span> <span class="n">__new_finish</span><span class="p">,</span> <span class="n">_M_get_Tp_allocator</span><span class="p">());</span>
+	  <span class="n">_M_deallocate</span><span class="p">(</span><span class="n">__new_start</span><span class="p">,</span> <span class="n">__len</span><span class="p">);</span>
+	  <span class="n">__throw_exception_again</span><span class="p">;</span>
+	<span class="p">}</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">_Destroy</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">,</span> <span class="n">_M_get_Tp_allocator</span><span class="p">());</span>
+      <span class="n">_M_deallocate</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_end_of_storage</span> <span class="o">-</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">);</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span> <span class="o">=</span> <span class="n">__new_start</span><span class="p">;</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span> <span class="o">=</span> <span class="n">__new_finish</span><span class="p">;</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_end_of_storage</span> <span class="o">=</span> <span class="n">__new_start</span> <span class="o">+</span> <span class="n">__len</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="c1">// Called by _M_fill_insert, _M_insert_aux etc.</span>
+<span class="n">size_type</span> <span class="nf">_M_check_len</span><span class="p">(</span><span class="n">size_type</span> <span class="n">__n</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">__s</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">max_size</span><span class="p">()</span> <span class="o">-</span> <span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">__n</span><span class="p">)</span>
+	  <span class="n">__throw_length_error</span><span class="p">(</span><span class="n">__N</span><span class="p">(</span><span class="n">__s</span><span class="p">));</span>
+
+    <span class="k">const</span> <span class="n">size_type</span> <span class="n">__len</span> <span class="o">=</span> <span class="n">size</span><span class="p">()</span> <span class="o">+</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">size</span><span class="p">(),</span> <span class="n">__n</span><span class="p">);</span>       <span class="c1">// 二倍长</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">__len</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">()</span> <span class="o">||</span> <span class="n">__len</span> <span class="o">&gt;</span> <span class="n">max_size</span><span class="p">())</span> <span class="o">?</span> <span class="n">max_size</span><span class="p">()</span> <span class="o">:</span> <span class="n">__len</span><span class="p">;</span>
+<span class="err">}</span>
+
+<span class="n">pointer</span> <span class="nf">_M_allocate</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">__n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">typedef</span> <span class="n">__gnu_cxx</span><span class="o">::</span><span class="n">__alloc_traits</span><span class="o">&lt;</span><span class="n">_Tp_alloc_type</span><span class="o">&gt;</span> <span class="n">_Tr</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">__n</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">_Tr</span><span class="o">::</span><span class="n">allocate</span><span class="p">(</span><span class="n">_M_impl</span><span class="p">,</span> <span class="n">__n</span><span class="p">)</span> <span class="o">:</span> <span class="n">pointer</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>使用时可使用<code class="language-plaintext highlighter-rouge">[]</code>，因为其已实现重载<code class="language-plaintext highlighter-rouge">[]</code>。</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre>      <span class="n">reference</span>
+      <span class="k">operator</span><span class="p">[](</span><span class="n">size_type</span> <span class="n">__n</span><span class="p">)</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+	      <span class="n">__glibcxx_requires_subscript</span><span class="p">(</span><span class="n">__n</span><span class="p">);</span>
+	      <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span> <span class="o">+</span> <span class="n">__n</span><span class="p">);</span>
+      <span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>使用时要注意迭代器失效问题，这个在很多STL容器中都有这个问题。</p></blockquote><h2 id="list">list</h2><p>链表<code class="language-plaintext highlighter-rouge">list</code>，与<code class="language-plaintext highlighter-rouge">vector</code>不同，元素在内存中不连续分配，不支持随机存取，好处就是插入与删除时间复杂度为<code class="language-plaintext highlighter-rouge">O(1)</code>。在STL中，其实现的是双向链表，其节点的定义可以看到有前驱和后继指针，实现也较为简单。</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre>  <span class="c1">/// An actual node in the %list.</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">&gt;</span>
+<span class="k">struct</span> <span class="nc">_List_node</span> <span class="o">:</span> <span class="k">public</span> <span class="n">__detail</span><span class="o">::</span><span class="n">_List_node_base</span> <span class="p">{</span>
+    <span class="n">_Tp</span> <span class="n">_M_data</span><span class="p">;</span>
+    <span class="n">_Tp</span><span class="o">*</span> <span class="n">_M_valptr</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">__addressof</span><span class="p">(</span><span class="n">_M_data</span><span class="p">);</span> <span class="p">}</span>
+    <span class="n">_Tp</span> <span class="k">const</span><span class="o">*</span> <span class="n">_M_valptr</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">__addressof</span><span class="p">(</span><span class="n">_M_data</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="nc">_List_node_base</span> <span class="p">{</span>
+    <span class="n">_List_node_base</span><span class="o">*</span> <span class="n">_M_next</span><span class="p">;</span>
+    <span class="n">_List_node_base</span><span class="o">*</span> <span class="n">_M_prev</span><span class="p">;</span>
+
+    <span class="k">static</span> <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">_List_node_base</span><span class="o">&amp;</span> <span class="n">__x</span><span class="p">,</span> <span class="n">_List_node_base</span><span class="o">&amp;</span> <span class="n">__y</span><span class="p">)</span> <span class="n">_GLIBCXX_USE_NOEXCEPT</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">_M_transfer</span><span class="p">(</span><span class="n">_List_node_base</span><span class="o">*</span> <span class="k">const</span> <span class="n">__first</span><span class="p">,</span> <span class="n">_List_node_base</span><span class="o">*</span> <span class="k">const</span> <span class="n">__last</span><span class="p">)</span> <span class="n">_GLIBCXX_USE_NOEXCEPT</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">_M_reverse</span><span class="p">()</span> <span class="n">_GLIBCXX_USE_NOEXCEPT</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">_M_hook</span><span class="p">(</span><span class="n">_List_node_base</span><span class="o">*</span> <span class="k">const</span> <span class="n">__position</span><span class="p">)</span> <span class="n">_GLIBCXX_USE_NOEXCEPT</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">_M_unhook</span><span class="p">()</span> <span class="n">_GLIBCXX_USE_NOEXCEPT</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></table></code></div></div><h2 id="deque">deque</h2><p>双端队列，具体实现不同于<code class="language-plaintext highlighter-rouge">vector</code>与<code class="language-plaintext highlighter-rouge">list</code>，它是一小段一小段连续空间，每段连续空间之间通过指针数组（这个数组中存放的是每个连续空间数组的头指针）串联起来，这样就能访问到所有元素。之所以采用这种存储布局，是有原因的，是有其应用场景的，等分析完源码后，我们就明白其为何要这么做了。</p><h3 id="deque源码分析">deque源码分析</h3><p>我们摘取部分源码看一下其实现细节。双端队列的迭代器实现代码如下（相较于<code class="language-plaintext highlighter-rouge">vector</code>与<code class="language-plaintext highlighter-rouge">list</code>，对元素的访问因为其存储布局不同，在每一段连续分配空间的边缘要做特殊处理）：</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+</pre><td class="rouge-code"><pre><span class="cp">#define _GLIBCXX_DEQUE_BUF_SIZE 512       // 默认连续空间大小
+</span>
+  <span class="n">_GLIBCXX_CONSTEXPR</span> <span class="kr">inline</span> <span class="kt">size_t</span> <span class="nf">__deque_buf_size</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">__size</span><span class="p">)</span> <span class="p">{</span> 
+        <span class="k">return</span> <span class="p">(</span><span class="n">__size</span> <span class="o">&lt;</span> <span class="n">_GLIBCXX_DEQUE_BUF_SIZE</span> <span class="o">?</span> <span class="kt">size_t</span><span class="p">(</span><span class="n">_GLIBCXX_DEQUE_BUF_SIZE</span> <span class="o">/</span> <span class="n">__size</span><span class="p">)</span> <span class="o">:</span><span class="kt">size_t</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span> 
+    <span class="p">}</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Ref</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Ptr</span><span class="p">&gt;</span>
+    <span class="k">struct</span> <span class="nc">_Deque_iterator</span> <span class="p">{</span>
+      <span class="k">typedef</span> <span class="n">_Deque_iterator</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_Tp</span><span class="o">&amp;</span><span class="p">,</span> <span class="n">_Tp</span><span class="o">*&gt;</span>	     <span class="n">iterator</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="n">_Deque_iterator</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">,</span> <span class="k">const</span> <span class="n">_Tp</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="n">_Tp</span><span class="o">*&gt;</span> <span class="n">const_iterator</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="n">_Tp</span><span class="o">*</span>					 <span class="n">_Elt_pointer</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="n">_Tp</span><span class="o">**</span>					<span class="n">_Map_pointer</span><span class="p">;</span>
+
+      <span class="k">static</span> <span class="kt">size_t</span> <span class="n">_S_buffer_size</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> 
+            <span class="k">return</span> <span class="n">__deque_buf_size</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">_Tp</span><span class="p">));</span> 
+      <span class="p">}</span>
+
+      <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">random_access_iterator_tag</span>	<span class="n">iterator_category</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="n">_Tp</span>				<span class="n">value_type</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="n">_Ptr</span>				<span class="n">pointer</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="n">_Ref</span>				<span class="n">reference</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="kt">size_t</span>				<span class="n">size_type</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="kt">ptrdiff_t</span>				<span class="n">difference_type</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="n">_Deque_iterator</span>			<span class="n">_Self</span><span class="p">;</span>
+
+      <span class="n">_Elt_pointer</span> <span class="n">_M_cur</span><span class="p">;</span>          <span class="c1">// 当前位置</span>
+      <span class="n">_Elt_pointer</span> <span class="n">_M_first</span><span class="p">;</span>        <span class="c1">// 每一小段空间的开始</span>
+      <span class="n">_Elt_pointer</span> <span class="n">_M_last</span><span class="p">;</span>         <span class="c1">// 每一小段空间的结束</span>
+      <span class="n">_Map_pointer</span> <span class="n">_M_node</span><span class="p">;</span>         <span class="c1">// 指针数组，可通过这里访问到所有连续存储空间片段</span>
+
+      <span class="c1">// 构造函数</span>
+      <span class="n">_Deque_iterator</span><span class="p">(</span><span class="n">_Elt_pointer</span> <span class="n">__x</span><span class="p">,</span> <span class="n">_Map_pointer</span> <span class="n">__y</span><span class="p">)</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="o">:</span> <span class="n">_M_cur</span><span class="p">(</span><span class="n">__x</span><span class="p">),</span> <span class="n">_M_first</span><span class="p">(</span><span class="o">*</span><span class="n">__y</span><span class="p">),</span>
+<span class="n">_M_last</span><span class="p">(</span><span class="o">*</span><span class="n">__y</span> <span class="o">+</span> <span class="n">_S_buffer_size</span><span class="p">()),</span> <span class="n">_M_node</span><span class="p">(</span><span class="n">__y</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+      <span class="n">_Deque_iterator</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span><span class="o">:</span> <span class="n">_M_cur</span><span class="p">(),</span> <span class="n">_M_first</span><span class="p">(),</span> <span class="n">_M_last</span><span class="p">(),</span> <span class="n">_M_node</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+
+      <span class="n">_Deque_iterator</span><span class="p">(</span><span class="k">const</span> <span class="n">iterator</span><span class="o">&amp;</span> <span class="n">__x</span><span class="p">)</span> <span class="n">_GLIBCXX_NOEXCEPT</span><span class="o">:</span> <span class="n">_M_cur</span><span class="p">(</span><span class="n">__x</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">),</span> <span class="n">_M_first</span><span class="p">(</span><span class="n">__x</span><span class="p">.</span><span class="n">_M_first</span><span class="p">),</span>
+	<span class="n">_M_last</span><span class="p">(</span><span class="n">__x</span><span class="p">.</span><span class="n">_M_last</span><span class="p">),</span> <span class="n">_M_node</span><span class="p">(</span><span class="n">__x</span><span class="p">.</span><span class="n">_M_node</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+      <span class="n">iterator</span> <span class="n">_M_const_cast</span><span class="p">()</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="n">iterator</span><span class="p">(</span><span class="n">_M_cur</span><span class="p">,</span> <span class="n">_M_node</span><span class="p">);</span>     <span class="c1">// 返回当前元素迭代器</span>
+      <span class="p">}</span>
+
+      <span class="n">reference</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> 
+          <span class="k">return</span> <span class="o">*</span><span class="n">_M_cur</span><span class="p">;</span> 
+      <span class="p">}</span>
+
+      <span class="n">pointer</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> 
+          <span class="k">return</span> <span class="n">_M_cur</span><span class="p">;</span> 
+      <span class="p">}</span>
+
+      <span class="c1">// 重载++运算符，可以看到，当_M_cur指向本段连续空间尾部时，访问下一个元素的话是下一段连续空间的首地址</span>
+      <span class="n">_Self</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">++</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>   
+	    <span class="o">++</span><span class="n">_M_cur</span><span class="p">;</span>     
+	    <span class="k">if</span> <span class="p">(</span><span class="n">_M_cur</span> <span class="o">==</span> <span class="n">_M_last</span><span class="p">)</span> <span class="p">{</span>  
+	        <span class="n">_M_set_node</span><span class="p">(</span><span class="n">_M_node</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>   <span class="c1">// 移向下一段连续存储空间</span>
+	        <span class="n">_M_cur</span> <span class="o">=</span> <span class="n">_M_first</span><span class="p">;</span>          <span class="c1">// 下一段连续空间的首元素</span>
+	    <span class="p">}</span>
+	    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">_Self</span> <span class="k">operator</span><span class="o">++</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+	    <span class="n">_Self</span> <span class="n">__tmp</span> <span class="o">=</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+	    <span class="o">++*</span><span class="k">this</span><span class="p">;</span>
+	    <span class="k">return</span> <span class="n">__tmp</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">_Self</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">--</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+	    <span class="k">if</span> <span class="p">(</span><span class="n">_M_cur</span> <span class="o">==</span> <span class="n">_M_first</span><span class="p">)</span> <span class="p">{</span>             <span class="c1">// 与++类似，如果当前是第一个元素，--时，就应该调到上一个连续存储空间</span>
+	        <span class="n">_M_set_node</span><span class="p">(</span><span class="n">_M_node</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+	        <span class="n">_M_cur</span> <span class="o">=</span> <span class="n">_M_last</span><span class="p">;</span>           <span class="c1">// 移到上一段空间的最后，</span>
+	    <span class="p">}</span>
+	    <span class="o">--</span><span class="n">_M_cur</span><span class="p">;</span>                       <span class="c1">// 因为是[start, last)区间，这里要--_M_cur；</span>
+	    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">_Self</span> <span class="k">operator</span><span class="o">--</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+	    <span class="n">_Self</span> <span class="n">__tmp</span> <span class="o">=</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+	    <span class="o">--*</span><span class="k">this</span><span class="p">;</span>
+	    <span class="k">return</span> <span class="n">__tmp</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">_Self</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">+=</span><span class="p">(</span><span class="n">difference_type</span> <span class="n">__n</span><span class="p">)</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+	    <span class="k">const</span> <span class="n">difference_type</span> <span class="n">__offset</span> <span class="o">=</span> <span class="n">__n</span> <span class="o">+</span> <span class="p">(</span><span class="n">_M_cur</span> <span class="o">-</span> <span class="n">_M_first</span><span class="p">);</span>
+	    <span class="k">if</span> <span class="p">(</span><span class="n">__offset</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">__offset</span> <span class="o">&lt;</span> <span class="n">difference_type</span><span class="p">(</span><span class="n">_S_buffer_size</span><span class="p">()))</span>  <span class="c1">// 如果当前连续空间满足</span>
+	       <span class="n">_M_cur</span> <span class="o">+=</span> <span class="n">__n</span><span class="p">;</span>
+	    <span class="k">else</span> <span class="p">{</span>  <span class="c1">// 如果当前段连续空间不够用了，需要计算跳到连续空间</span>
+	        <span class="k">const</span> <span class="n">difference_type</span> <span class="n">__node_offset</span> <span class="o">=</span> <span class="n">__offset</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">__offset</span> <span class="o">/</span> <span class="n">difference_type</span><span class="p">(</span><span class="n">_S_buffer_size</span><span class="p">())</span> <span class="o">:</span> <span class="o">-</span><span class="n">difference_type</span><span class="p">((</span><span class="o">-</span><span class="n">__offset</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">_S_buffer_size</span><span class="p">())</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+	        <span class="n">_M_set_node</span><span class="p">(</span><span class="n">_M_node</span> <span class="o">+</span> <span class="n">__node_offset</span><span class="p">);</span>
+	        <span class="n">_M_cur</span> <span class="o">=</span> <span class="n">_M_first</span> <span class="o">+</span> <span class="p">(</span><span class="n">__offset</span> <span class="o">-</span> <span class="n">__node_offset</span> <span class="o">*</span> <span class="n">difference_type</span><span class="p">(</span><span class="n">_S_buffer_size</span><span class="p">()));</span>
+	    <span class="p">}</span>
+	    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">_Self</span> <span class="k">operator</span><span class="o">+</span><span class="p">(</span><span class="n">difference_type</span> <span class="n">__n</span><span class="p">)</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+	    <span class="n">_Self</span> <span class="n">__tmp</span> <span class="o">=</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+	    <span class="k">return</span> <span class="n">__tmp</span> <span class="o">+=</span> <span class="n">__n</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">_Self</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">-=</span><span class="p">(</span><span class="n">difference_type</span> <span class="n">__n</span><span class="p">)</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="o">*</span><span class="k">this</span> <span class="o">+=</span> <span class="o">-</span><span class="n">__n</span><span class="p">;</span> <span class="p">}</span>
+
+      <span class="n">_Self</span> <span class="k">operator</span><span class="o">-</span><span class="p">(</span><span class="n">difference_type</span> <span class="n">__n</span><span class="p">)</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+	    <span class="n">_Self</span> <span class="n">__tmp</span> <span class="o">=</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+	    <span class="k">return</span> <span class="n">__tmp</span> <span class="o">-=</span> <span class="n">__n</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">reference</span> <span class="k">operator</span><span class="p">[](</span><span class="n">difference_type</span> <span class="n">__n</span><span class="p">)</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="k">this</span> <span class="o">+</span> <span class="n">__n</span><span class="p">);</span> <span class="p">}</span>
+
+      <span class="c1">// Prepares to traverse new_node.  Sets everything except _M_cur, which should therefore be set by the caller immediately afterwards, based on _M_first and _M_last.</span>
+      <span class="kt">void</span> <span class="n">_M_set_node</span><span class="p">(</span><span class="n">_Map_pointer</span> <span class="n">__new_node</span><span class="p">)</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>     <span class="c1">// 跳到新的一段连续存储空间</span>
+	    <span class="n">_M_node</span> <span class="o">=</span> <span class="n">__new_node</span><span class="p">;</span>
+	    <span class="n">_M_first</span> <span class="o">=</span> <span class="o">*</span><span class="n">__new_node</span><span class="p">;</span>
+	    <span class="n">_M_last</span> <span class="o">=</span> <span class="n">_M_first</span> <span class="o">+</span> <span class="n">difference_type</span><span class="p">(</span><span class="n">_S_buffer_size</span><span class="p">());</span>
+      <span class="p">}</span>
+    <span class="p">};</span>
+</pre></table></code></div></div><p>从上面<code class="language-plaintext highlighter-rouge">deque</code>迭代器的实现来看，主要需要注意的地方就是每段连续空间的边缘。看完迭代器后，我们看一下<code class="language-plaintext highlighter-rouge">deque</code>类的实现代码，这里删减掉大部分代码，保留部分代码。其中重点看一下<code class="language-plaintext highlighter-rouge">deque</code>中最常用的<code class="language-plaintext highlighter-rouge">push_front</code>、<code class="language-plaintext highlighter-rouge">pop_front</code>与<code class="language-plaintext highlighter-rouge">push_back</code>、<code class="language-plaintext highlighter-rouge">pop_back</code>的实现。<code class="language-plaintext highlighter-rouge">push_back</code>时间复杂度<code class="language-plaintext highlighter-rouge">O(1)</code>比较好理解，过程类似于<code class="language-plaintext highlighter-rouge">vector</code>，但<code class="language-plaintext highlighter-rouge">push_front</code>为什么也是<code class="language-plaintext highlighter-rouge">O(1)</code>呢？如果在头部插入一个元素，第一个连续空间距离起始<code class="language-plaintext highlighter-rouge">start</code>还有剩余空间的的话，直接插入就好了，如果没有剩余空间的话，就创建一段新的连续空间，将首地址放到<code class="language-plaintext highlighter-rouge">map</code>中，如果<code class="language-plaintext highlighter-rouge">map</code>没有空间放置这个首地址，就调整<code class="language-plaintext highlighter-rouge">map</code>，再插入首地址，详细过程请看源码的具体实现：</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+</pre><td class="rouge-code"><pre> <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Alloc</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">allocator</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">&gt;</span> <span class="o">&gt;</span>
+    <span class="k">class</span> <span class="nc">deque</span> <span class="o">:</span> <span class="k">protected</span> <span class="n">_Deque_base</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_Alloc</span><span class="o">&gt;</span> <span class="p">{</span>
+      <span class="k">typedef</span> <span class="n">_Deque_base</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_Alloc</span><span class="o">&gt;</span>			<span class="n">_Base</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_Tp_alloc_type</span>		<span class="n">_Tp_alloc_type</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_Alloc_traits</span>		<span class="n">_Alloc_traits</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_Map_pointer</span>		<span class="n">_Map_pointer</span><span class="p">;</span>
+
+    <span class="nl">public:</span>
+      <span class="k">typedef</span> <span class="n">_Tp</span>					<span class="n">value_type</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">pointer</span>		<span class="n">pointer</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">const_pointer</span>	<span class="n">const_pointer</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">reference</span>		<span class="n">reference</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">const_reference</span>	<span class="n">const_reference</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Base</span><span class="o">::</span><span class="n">iterator</span>			<span class="n">iterator</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Base</span><span class="o">::</span><span class="n">const_iterator</span>		<span class="n">const_iterator</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">reverse_iterator</span><span class="o">&lt;</span><span class="n">const_iterator</span><span class="o">&gt;</span>	<span class="n">const_reverse_iterator</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">reverse_iterator</span><span class="o">&lt;</span><span class="n">iterator</span><span class="o">&gt;</span>		<span class="n">reverse_iterator</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="kt">size_t</span>					<span class="n">size_type</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="kt">ptrdiff_t</span>					<span class="n">difference_type</span><span class="p">;</span>
+      <span class="k">typedef</span> <span class="n">_Alloc</span>					<span class="n">allocator_type</span><span class="p">;</span>
+
+    <span class="nl">protected:</span>
+      <span class="k">static</span> <span class="kt">size_t</span> <span class="n">_S_buffer_size</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> <span class="k">return</span> <span class="n">__deque_buf_size</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">_Tp</span><span class="p">));</span> <span class="p">}</span>
+
+      <span class="c1">// Functions controlling memory layout, and nothing else.</span>
+      <span class="k">using</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_M_initialize_map</span><span class="p">;</span>
+      <span class="k">using</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_M_create_nodes</span><span class="p">;</span>
+      <span class="k">using</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_M_destroy_nodes</span><span class="p">;</span>
+      <span class="k">using</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_M_allocate_node</span><span class="p">;</span>
+      <span class="k">using</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_M_deallocate_node</span><span class="p">;</span>
+      <span class="k">using</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_M_allocate_map</span><span class="p">;</span>
+      <span class="k">using</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_M_deallocate_map</span><span class="p">;</span>
+      <span class="k">using</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_M_get_Tp_allocator</span><span class="p">;</span>
+
+      <span class="cm">/**
+       *  A total of four data members accumulated down the hierarchy.
+       *  May be accessed via _M_impl.*
+       */</span>
+      <span class="k">using</span> <span class="n">_Base</span><span class="o">::</span><span class="n">_M_impl</span><span class="p">;</span>
+
+    <span class="nl">public:</span>
+	  <span class="c1">// 省略构造函数与析构函数......</span>
+
+      <span class="cm">/*
+       *  @brief  Assigns a given value to a %deque.
+       *  @param  __n  Number of elements to be assigned.
+       *  @param  __val  Value to be assigned.
+       *
+       *  This function fills a %deque with @a n copies of the given
+       *  value.  Note that the assignment completely changes the
+       *  %deque and that the resulting %deque's size is the same as
+       *  the number of elements assigned.
+       */</span>
+      <span class="kt">void</span> <span class="n">assign</span><span class="p">(</span><span class="n">size_type</span> <span class="n">__n</span><span class="p">,</span> <span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__val</span><span class="p">)</span> <span class="p">{</span> <span class="n">_M_fill_assign</span><span class="p">(</span><span class="n">__n</span><span class="p">,</span> <span class="n">__val</span><span class="p">);</span> <span class="p">}</span>
+
+	  <span class="c1">// 省略其他assign重载函数......	</span>
+
+
+      <span class="c1">/// Get a copy of the memory allocation object.</span>
+      <span class="n">allocator_type</span> <span class="n">get_allocator</span><span class="p">()</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span><span class="p">{</span> <span class="k">return</span> <span class="n">_Base</span><span class="o">::</span><span class="n">get_allocator</span><span class="p">();</span> <span class="p">}</span>
+
+      <span class="c1">// iterators</span>
+      <span class="cm">/**
+       *  Returns a read/write iterator that points to the first element in the
+       *  %deque.  Iteration is done in ordinary element order.
+       */</span>
+      <span class="n">iterator</span> <span class="n">begin</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">;</span> <span class="p">}</span>
+      <span class="n">const_iterator</span> <span class="n">begin</span><span class="p">()</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">;</span> <span class="p">}</span>
+
+      <span class="cm">/**
+       *  Returns a read/write iterator that points one past the last
+       *  element in the %deque.  Iteration is done in ordinary
+       *  element order.
+       */</span>
+      <span class="n">iterator</span> <span class="n">end</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span><span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">;</span> <span class="p">}</span>
+      <span class="n">const_iterator</span> <span class="n">end</span><span class="p">()</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">;</span> <span class="p">}</span>
+
+
+	<span class="c1">// 省略其他迭代器相关代码......</span>
+
+      <span class="c1">// [23.2.1.2] capacity</span>
+      <span class="cm">/**  Returns the number of elements in the %deque.  */</span>
+      <span class="n">size_type</span> <span class="n">size</span><span class="p">()</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span> <span class="o">-</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">;</span> <span class="p">}</span>
+
+      <span class="cm">/**  Returns the size() of the largest possible %deque.  */</span>
+      <span class="n">size_type</span> <span class="n">max_size</span><span class="p">()</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">max_size</span><span class="p">(</span><span class="n">_M_get_Tp_allocator</span><span class="p">());</span> <span class="p">}</span>
+
+      <span class="cm">/**
+       *  @brief  Resizes the %deque to the specified number of elements.
+       *  @param  __new_size  Number of elements the %deque should contain.
+       *
+       *  This function will %resize the %deque to the specified
+       *  number of elements.  If the number is smaller than the
+       *  %deque's current size the %deque is truncated, otherwise
+       *  default constructed elements are appended.
+       */</span>
+      <span class="kt">void</span> <span class="n">resize</span><span class="p">(</span><span class="n">size_type</span> <span class="n">__new_size</span><span class="p">)</span> <span class="p">{</span>
+		  <span class="k">const</span> <span class="n">size_type</span> <span class="n">__len</span> <span class="o">=</span> <span class="n">size</span><span class="p">();</span>
+		  <span class="k">if</span> <span class="p">(</span><span class="n">__new_size</span> <span class="o">&gt;</span> <span class="n">__len</span><span class="p">)</span>
+	  		  <span class="n">_M_default_append</span><span class="p">(</span><span class="n">__new_size</span> <span class="o">-</span> <span class="n">__len</span><span class="p">);</span>
+		  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">__new_size</span> <span class="o">&lt;</span> <span class="n">__len</span><span class="p">)</span>
+	  		  <span class="n">_M_erase_at_end</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span> <span class="o">+</span> <span class="n">difference_type</span><span class="p">(</span><span class="n">__new_size</span><span class="p">));</span>
+      <span class="p">}</span>
+
+<span class="cp">#if __cplusplus &gt;= 201103L
+</span>      <span class="cm">/**  A non-binding request to reduce memory use.  */</span>
+      <span class="kt">void</span> <span class="n">shrink_to_fit</span><span class="p">()</span> <span class="k">noexcept</span> <span class="p">{</span> <span class="n">_M_shrink_to_fit</span><span class="p">();</span> <span class="p">}</span>
+<span class="cp">#endif
+</span>
+      <span class="cm">/**
+       *  Returns true if the %deque is empty.  (Thus begin() would
+       *  equal end().)
+       */</span>
+      <span class="kt">bool</span> <span class="n">empty</span><span class="p">()</span> <span class="k">const</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span> <span class="o">==</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">;</span> <span class="p">}</span>
+
+      <span class="c1">// element access</span>
+      <span class="cm">/**
+       *  @brief Subscript access to the data contained in the %deque.
+       *  @param __n The index of the element for which data should be
+       *  accessed.
+       *  @return  Read/write reference to data.
+       *
+       *  This operator allows for easy, array-style, data access.
+       *  Note that data access with this operator is unchecked and
+       *  out_of_range lookups are not defined. (For checked lookups
+       *  see at().)
+       */</span>
+      <span class="n">reference</span> <span class="k">operator</span><span class="p">[](</span><span class="n">size_type</span> <span class="n">__n</span><span class="p">)</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+		  <span class="n">__glibcxx_requires_subscript</span><span class="p">(</span><span class="n">__n</span><span class="p">);</span>
+		  <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">[</span><span class="n">difference_type</span><span class="p">(</span><span class="n">__n</span><span class="p">)];</span>
+      <span class="p">}</span>
+
+    <span class="nl">protected:</span>
+      <span class="c1">/// Safety check used only from at().</span>
+      <span class="kt">void</span> <span class="n">_M_range_check</span><span class="p">(</span><span class="n">size_type</span> <span class="n">__n</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+		  <span class="k">if</span> <span class="p">(</span><span class="n">__n</span> <span class="o">&gt;=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">())</span>
+	  		  <span class="n">__throw_out_of_range_fmt</span><span class="p">(</span><span class="n">__N</span><span class="p">(</span><span class="s">"deque::_M_range_check: __n "</span>
+				       <span class="s">"(which is %zu)&gt;= this-&gt;size() "</span>
+				       <span class="s">"(which is %zu)"</span><span class="p">),</span> <span class="n">__n</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">());</span>
+      <span class="p">}</span>
+
+    <span class="nl">public:</span>
+      <span class="cm">/**
+       *  @brief  Provides access to the data contained in the %deque.
+       *  @param __n The index of the element for which data should be
+       *  accessed.
+       *  @return  Read/write reference to data.
+       *  @throw  std::out_of_range  If @a __n is an invalid index.
+       *
+       *  This function provides for safer data access.  The parameter
+       *  is first checked that it is in the range of the deque.  The
+       *  function throws out_of_range if the check fails.
+       */</span>
+      <span class="n">reference</span> <span class="n">at</span><span class="p">(</span><span class="n">size_type</span> <span class="n">__n</span><span class="p">)</span> <span class="p">{</span>
+		  <span class="n">_M_range_check</span><span class="p">(</span><span class="n">__n</span><span class="p">);</span>
+		  <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">__n</span><span class="p">];</span>
+      <span class="p">}</span>
+
+      <span class="cm">/**
+       *  @brief  Provides access to the data contained in the %deque.
+       *  @param __n The index of the element for which data should be
+       *  accessed.
+       *  @return  Read-only (constant) reference to data.
+       *  @throw  std::out_of_range  If @a __n is an invalid index.
+       *
+       *  This function provides for safer data access.  The parameter is first
+       *  checked that it is in the range of the deque.  The function throws
+       *  out_of_range if the check fails.
+       */</span>
+      <span class="n">const_reference</span> <span class="n">at</span><span class="p">(</span><span class="n">size_type</span> <span class="n">__n</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+		  <span class="n">_M_range_check</span><span class="p">(</span><span class="n">__n</span><span class="p">);</span>
+		  <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">__n</span><span class="p">];</span>
+      <span class="p">}</span>
+
+      <span class="cm">/**
+       *  Returns a read/write reference to the data at the first
+       *  element of the %deque.
+       */</span>
+      <span class="n">reference</span> <span class="n">front</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+		  <span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		  <span class="k">return</span> <span class="o">*</span><span class="n">begin</span><span class="p">();</span>
+      <span class="p">}</span>
+
+      <span class="cm">/**
+       *  Returns a read/write reference to the data at the last element of the
+       *  %deque.
+       */</span>
+      <span class="n">reference</span> <span class="n">back</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+		  <span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		  <span class="n">iterator</span> <span class="n">__tmp</span> <span class="o">=</span> <span class="n">end</span><span class="p">();</span>
+		  <span class="o">--</span><span class="n">__tmp</span><span class="p">;</span>
+		  <span class="k">return</span> <span class="o">*</span><span class="n">__tmp</span><span class="p">;</span>
+      <span class="p">}</span>
+
+
+      <span class="cm">/**
+       *  @brief  Add data to the front of the %deque.
+       *  @param  __x  Data to be added.
+       *
+       *  This is a typical stack operation.  The function creates an
+       *  element at the front of the %deque and assigns the given
+       *  data to it.  Due to the nature of a %deque this operation
+       *  can be done in constant time.
+       */</span>
+      <span class="kt">void</span> <span class="n">push_front</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__x</span><span class="p">)</span> <span class="p">{</span>		<span class="c1">// 如果第一段连续空间头部还有剩余空间的话，直接插入元素</span>
+		  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_cur</span> <span class="o">!=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_first</span><span class="p">)</span> <span class="p">{</span>
+	      	<span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">construct</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_cur</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">__x</span><span class="p">);</span>
+	      	<span class="o">--</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">;</span>
+	  	  <span class="p">}</span> <span class="k">else</span>		<span class="c1">// 如果没有，在前部重新分配空间</span>
+	    	  <span class="n">_M_push_front_aux</span><span class="p">(</span><span class="n">__x</span><span class="p">);</span>
+      <span class="p">}</span>
+
+      <span class="cm">/**
+       *  @brief  Add data to the end of the %deque.
+       *  @param  __x  Data to be added.
+       *
+       *  This is a typical stack operation.  The function creates an
+       *  element at the end of the %deque and assigns the given data
+       *  to it.  Due to the nature of a %deque this operation can be
+       *  done in constant time.
+       */</span>
+      <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__x</span><span class="p">)</span> <span class="p">{</span>
+		  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_cur</span> <span class="o">!=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_last</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+	    	  <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">construct</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">,</span> <span class="n">__x</span><span class="p">);</span>
+	          <span class="o">++</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">;</span>
+	  	  <span class="p">}</span> <span class="k">else</span> 
+			<span class="n">_M_push_back_aux</span><span class="p">(</span><span class="n">__x</span><span class="p">);</span>
+      <span class="p">}</span>
+
+      <span class="cm">/**
+       *  @brief  Removes first element.
+       *
+       *  This is a typical stack operation.  It shrinks the %deque by one.
+       *
+       *  Note that no data is returned, and if the first element's data is
+       *  needed, it should be retrieved before pop_front() is called.
+       */</span>
+      <span class="kt">void</span> <span class="n">pop_front</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+		  <span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_cur</span> <span class="o">!=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_last</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+	    	  <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">,</span>	<span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">);</span>
+	    	  <span class="o">++</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">;</span>
+	  	  <span class="p">}</span> <span class="k">else</span>
+	  	  <span class="n">_M_pop_front_aux</span><span class="p">();</span>
+      <span class="p">}</span>
+
+      <span class="cm">/**
+       *  @brief  Removes last element.
+       *
+       *  This is a typical stack operation.  It shrinks the %deque by one.
+       *
+       *  Note that no data is returned, and if the last element's data is
+       *  needed, it should be retrieved before pop_back() is called.
+       */</span>
+      <span class="kt">void</span> <span class="n">pop_back</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span>
+		  <span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_cur</span> <span class="o">!=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_first</span><span class="p">)</span> <span class="p">{</span>
+	          <span class="o">--</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">;</span>
+	    	  <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">);</span>
+	  	  <span class="p">}</span> <span class="k">else</span>
+	  	  <span class="n">_M_pop_back_aux</span><span class="p">();</span>
+      <span class="p">}</span>
+
+      <span class="cm">/**
+       *  @brief  Inserts given value into %deque before specified iterator.
+       *  @param  __position  An iterator into the %deque.
+       *  @param  __x  Data to be inserted.
+       *  @return  An iterator that points to the inserted data.
+       *
+       *  This function will insert a copy of the given value before the
+       *  specified location.
+       */</span>
+      <span class="n">iterator</span> <span class="n">insert</span><span class="p">(</span><span class="n">iterator</span> <span class="n">__position</span><span class="p">,</span> <span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__x</span><span class="p">);</span>
+
+      <span class="cm">/**
+       *  Erases all the elements.  Note that this function only erases the
+       *  elements, and that if the elements themselves are pointers, the
+       *  pointed-to memory is not touched in any way.  Managing the pointer is
+       *  the user's responsibility.
+       */</span>
+      <span class="kt">void</span> <span class="n">clear</span><span class="p">()</span> <span class="n">_GLIBCXX_NOEXCEPT</span> <span class="p">{</span> <span class="n">_M_erase_at_end</span><span class="p">(</span><span class="n">begin</span><span class="p">());</span> <span class="p">}</span>
+
+    <span class="nl">protected:</span>
+      <span class="c1">// Internal constructor functions follow.</span>
+	  <span class="c1">// 省略部分代码......</span>
+	 	
+      <span class="kt">void</span> <span class="n">_M_push_back_aux</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span><span class="p">);</span>
+      <span class="kt">void</span> <span class="n">_M_push_front_aux</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span><span class="p">);</span>
+      <span class="kt">void</span> <span class="n">_M_pop_back_aux</span><span class="p">();</span>
+      <span class="kt">void</span> <span class="n">_M_pop_front_aux</span><span class="p">();</span>
+
+	  <span class="c1">// 省略部分代码......</span>
+    <span class="p">};</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">deque</code>的实现比<code class="language-plaintext highlighter-rouge">vector</code>和<code class="language-plaintext highlighter-rouge">list</code>要复杂的多，主要是因为其空间布局不太一样。下面的代码主要是对双端队列队首与队尾的操作（<code class="language-plaintext highlighter-rouge">push_front</code>、<code class="language-plaintext highlighter-rouge">push_back</code>、<code class="language-plaintext highlighter-rouge">pop_front</code>、<code class="language-plaintext highlighter-rouge">pop_back</code>）中涉及到空间变动的部分代码实现：</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+</pre><td class="rouge-code"><pre><span class="c1">// Called only if _M_impl._M_finish._M_cur == _M_impl._M_finish._M_last - 1.</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Alloc</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">deque</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_Alloc</span><span class="o">&gt;::</span><span class="n">_M_push_back_aux</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__t</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">_M_reserve_map_at_back</span><span class="p">();</span>
+	<span class="o">*</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_allocate_node</span><span class="p">();</span>      <span class="c1">// map新指针指向新分配的连续空间</span>
+	<span class="kr">__try</span> <span class="p">{</span>
+	    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">construct</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">,</span> <span class="n">__t</span><span class="p">);</span>
+	    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_set_node</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+	    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_cur</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_first</span><span class="p">;</span>
+	<span class="p">}</span> <span class="n">__catch</span><span class="p">(...)</span> <span class="p">{</span>
+	    <span class="n">_M_deallocate_node</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">+</span> <span class="mi">1</span><span class="p">));</span>
+	    <span class="n">__throw_exception_again</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Called only if _M_impl._M_start._M_cur == _M_impl._M_start._M_first.</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Alloc</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">deque</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_Alloc</span><span class="o">&gt;::</span><span class="n">_M_push_front_aux</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__t</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">_M_reserve_map_at_front</span><span class="p">();</span>
+	<span class="o">*</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_allocate_node</span><span class="p">();</span>       <span class="c1">// map指定位置指向新分配的连续空间</span>
+	<span class="kr">__try</span> <span class="p">{</span>
+	    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_set_node</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+	    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_cur</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_last</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+	    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">construct</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">,</span> <span class="n">__t</span><span class="p">);</span>
+	<span class="p">}</span> <span class="n">__catch</span><span class="p">(...)</span> <span class="p">{</span>
+	    <span class="o">++</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">;</span>
+	    <span class="n">_M_deallocate_node</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">-</span> <span class="mi">1</span><span class="p">));</span>
+	    <span class="n">__throw_exception_again</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Called only if _M_impl._M_finish._M_cur == _M_impl._M_finish._M_first.</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Alloc</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">deque</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_Alloc</span><span class="o">&gt;::</span><span class="n">_M_pop_back_aux</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">_M_deallocate_node</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_first</span><span class="p">);</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_set_node</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_cur</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_last</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">_M_get_Tp_allocator</span><span class="p">(),</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">);</span>
+<span class="p">}</span>
+
+  <span class="c1">// Called only if _M_impl._M_start._M_cur == _M_impl._M_start._M_last - 1.</span>
+  <span class="c1">// Note that if the deque has at least one element (a precondition for this</span>
+  <span class="c1">// member function), and if</span>
+  <span class="c1">//   _M_impl._M_start._M_cur == _M_impl._M_start._M_last,</span>
+  <span class="c1">// then the deque must have at least two nodes.</span>
+  <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Alloc</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">deque</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_Alloc</span><span class="o">&gt;::</span><span class="n">_M_pop_front_aux</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">_Alloc_traits</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">_M_get_Tp_allocator</span><span class="p">(),</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_cur</span><span class="p">);</span>
+    <span class="n">_M_deallocate_node</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_first</span><span class="p">);</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_set_node</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_cur</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_first</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>下面的原代码是调整<code class="language-plaintext highlighter-rouge">map</code>的，如果<code class="language-plaintext highlighter-rouge">map</code>没有适当空间插入新的连续空间首地址，就重新分配<code class="language-plaintext highlighter-rouge">map</code>（这种情况比如，<code class="language-plaintext highlighter-rouge">map</code>的后面全部插满了，但前面还大量空着，就需要将目前的<code class="language-plaintext highlighter-rouge">map</code>中的元素进行移动，使<code class="language-plaintext highlighter-rouge">map</code>的元素分布在中间位置，首尾两端是空闲的，以便于后面插入新元素； 如果是<code class="language-plaintext highlighter-rouge">map</code>的空间不足了，则需要新分配<code class="language-plaintext highlighter-rouge">map</code>空间，新空间大小要大于新指针元素数量+2）。</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">_M_reserve_map_at_back</span><span class="p">(</span><span class="n">size_type</span> <span class="n">__nodes_to_add</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">__nodes_to_add</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map_size</span> <span class="o">-</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">-</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map</span><span class="p">))</span>
+	    <span class="n">_M_reallocate_map</span><span class="p">(</span><span class="n">__nodes_to_add</span><span class="p">,</span> <span class="nb">false</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">_M_reserve_map_at_front</span><span class="p">(</span><span class="n">size_type</span> <span class="n">__nodes_to_add</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">__nodes_to_add</span> <span class="o">&gt;</span> <span class="n">size_type</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">-</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map</span><span class="p">))</span>
+	    <span class="n">_M_reallocate_map</span><span class="p">(</span><span class="n">__nodes_to_add</span><span class="p">,</span> <span class="nb">true</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Alloc</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">deque</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_Alloc</span><span class="o">&gt;::</span><span class="n">_M_reallocate_map</span><span class="p">(</span><span class="n">size_type</span> <span class="n">__nodes_to_add</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">__add_at_front</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="n">size_type</span> <span class="n">__old_num_nodes</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">-</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">size_type</span> <span class="n">__new_num_nodes</span> <span class="o">=</span> <span class="n">__old_num_nodes</span> <span class="o">+</span> <span class="n">__nodes_to_add</span><span class="p">;</span>
+
+    <span class="n">_Map_pointer</span> <span class="n">__new_nstart</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map_size</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">__new_num_nodes</span><span class="p">)</span> <span class="p">{</span>
+	    <span class="n">__new_nstart</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map</span> <span class="o">+</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map_size</span> <span class="o">-</span> <span class="n">__new_num_nodes</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">__add_at_front</span> <span class="o">?</span> <span class="n">__nodes_to_add</span> <span class="o">:</span> <span class="mi">0</span><span class="p">);</span>	<span class="c1">// 这里新map的开始往后移动了一段位置，是为了将来在前部插入的时候有剩余空间，后部空余一段位置也是。</span>
+	    <span class="k">if</span> <span class="p">(</span><span class="n">__new_nstart</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_node</span><span class="p">)</span>
+	    	<span class="n">std</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_node</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">__new_nstart</span><span class="p">);</span>
+	    <span class="k">else</span>
+	    	<span class="n">std</span><span class="o">::</span><span class="n">copy_backward</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_node</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">__new_nstart</span> <span class="o">+</span> <span class="n">__old_num_nodes</span><span class="p">);</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+	    <span class="n">size_type</span> <span class="n">__new_map_size</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map_size</span> <span class="o">+</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map_size</span><span class="p">,</span> <span class="n">__nodes_to_add</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">;</span>		<span class="c1">// 要至少空余2个空闲位置</span>
+	    <span class="n">_Map_pointer</span> <span class="n">__new_map</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_allocate_map</span><span class="p">(</span><span class="n">__new_map_size</span><span class="p">);</span>
+	    <span class="n">__new_nstart</span> <span class="o">=</span> <span class="n">__new_map</span> <span class="o">+</span> <span class="p">(</span><span class="n">__new_map_size</span> <span class="o">-</span> <span class="n">__new_num_nodes</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">__add_at_front</span> <span class="o">?</span> <span class="n">__nodes_to_add</span> <span class="o">:</span> <span class="mi">0</span><span class="p">);</span>
+	    <span class="n">std</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_node</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_node</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">__new_nstart</span><span class="p">);</span>
+	    <span class="n">_M_deallocate_map</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map_size</span><span class="p">);</span>
+
+	    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map</span> <span class="o">=</span> <span class="n">__new_map</span><span class="p">;</span>
+	    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_map_size</span> <span class="o">=</span> <span class="n">__new_map_size</span><span class="p">;</span>
+	<span class="p">}</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_start</span><span class="p">.</span><span class="n">_M_set_node</span><span class="p">(</span><span class="n">__new_nstart</span><span class="p">);</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">_M_impl</span><span class="p">.</span><span class="n">_M_finish</span><span class="p">.</span><span class="n">_M_set_node</span><span class="p">(</span><span class="n">__new_nstart</span> <span class="o">+</span> <span class="n">__old_num_nodes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>更详细的还是自己看STL的源码吧，顺便吐槽一下STL的源码，代码太臃肿了，看起来太累了，如果按照其实现原理，自己实现一个mini版STL，应该会简洁许多许多。</p></blockquote><p>到这里，<code class="language-plaintext highlighter-rouge">deque</code>中比较核心的源码已经基本分析完了，也基本展现了<code class="language-plaintext highlighter-rouge">deque</code>中几个关键成员函数是如何实现的，其迭代器的实现，其<code class="language-plaintext highlighter-rouge">map</code>的实现与调整。</p><h3 id="deque与vectorlist的对比">deque与vector、list的对比</h3><p><code class="language-plaintext highlighter-rouge">vector</code>能够实现随机访问，动态扩展，但在头部插入<code class="language-plaintext highlighter-rouge">O(n)</code>，开销较大，且动态扩展时需要复制所有的元素，同样效率较低。<code class="language-plaintext highlighter-rouge">list</code>插入、删除头尾部元素效率很高<code class="language-plaintext highlighter-rouge">O(n)</code>，但是不能随机访问，查找效率<code class="language-plaintext highlighter-rouge">O(n)</code>，每个节点需要存储前后节点指针，有较大的额外存储开销。而<code class="language-plaintext highlighter-rouge">deque</code>等于是在两种容器的优缺点进行了一定的平衡，在收尾插入、删除元素，效率很高<code class="language-plaintext highlighter-rouge">O(1)</code>，在中间插入<code class="language-plaintext highlighter-rouge">O(n)</code>都差不多，但其能实现随机访问，且动态扩展时不需要复制全体元素，只需要新分配足够的连续存储空间，最多重新复制一下<code class="language-plaintext highlighter-rouge">map</code>到新<code class="language-plaintext highlighter-rouge">map</code>，而<code class="language-plaintext highlighter-rouge">map</code>是各个连续存储空间首地址指针数组，容量相比全体元素小非常多，动态扩展时代价很小。所以，<code class="language-plaintext highlighter-rouge">deque</code>相比<code class="language-plaintext highlighter-rouge">vector</code>在更一般的情况下有更高的性能，相比<code class="language-plaintext highlighter-rouge">list</code>有更小的额外存储空间（但<code class="language-plaintext highlighter-rouge">deque</code>拥有较大的最小内存开销，原因是它需要<code class="language-plaintext highlighter-rouge">map</code>和一段连续存储空间开销，即元素数目非常小时开销比<code class="language-plaintext highlighter-rouge">list</code>大，但当元素数目较多时，空间开销比<code class="language-plaintext highlighter-rouge">list</code>少）。</p><h2 id="stack">stack</h2><p>栈也是经常用的数据结构，其实现较为简单，内部实现依赖<code class="language-plaintext highlighter-rouge">deque</code>，当然也可以用<code class="language-plaintext highlighter-rouge">vector</code>、<code class="language-plaintext highlighter-rouge">list</code>实现。</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+</pre><td class="rouge-code"><pre><span class="c1">// Stack implementation -*- C++ -*-</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Sequence</span> <span class="o">=</span> <span class="n">deque</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">&gt;</span> <span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">stack</span> <span class="p">{</span>
+<span class="c1">// concept requirements</span>
+<span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Sequence</span><span class="o">::</span><span class="n">value_type</span> <span class="n">_Sequence_value_type</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+    <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Sequence</span><span class="o">::</span><span class="n">value_type</span>		<span class="n">value_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Sequence</span><span class="o">::</span><span class="n">reference</span>		<span class="n">reference</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Sequence</span><span class="o">::</span><span class="n">const_reference</span>	<span class="n">const_reference</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Sequence</span><span class="o">::</span><span class="n">size_type</span>		<span class="n">size_type</span><span class="p">;</span>
+    <span class="k">typedef</span>	       <span class="n">_Sequence</span>			<span class="n">container_type</span><span class="p">;</span>
+
+<span class="nl">protected:</span>
+    <span class="n">_Sequence</span> <span class="n">c</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+	<span class="n">stack</span><span class="p">()</span><span class="o">:</span> <span class="n">c</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+	<span class="c1">// 省略构造函数与析构函数......</span>
+      <span class="cm">/**
+       *  Returns true if the %stack is empty.
+       */</span>
+    <span class="kt">bool</span> <span class="n">empty</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span> <span class="p">}</span>
+
+    <span class="cm">/**  Returns the number of elements in the %stack.  */</span>
+    <span class="n">size_type</span> <span class="n">size</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="p">}</span>
+
+      <span class="cm">/**
+       *  Returns a read/write reference to the data at the first
+       *  element of the %stack.
+       */</span>
+    <span class="n">reference</span> <span class="n">top</span><span class="p">()</span> <span class="p">{</span>
+		<span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		<span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+    <span class="p">}</span>
+      <span class="cm">/**
+       *  @brief  Add data to the top of the %stack.
+       *  @param  __x  Data to be added.
+       *
+       *  This is a typical %stack operation.  The function creates an
+       *  element at the top of the %stack and assigns the given data
+       *  to it.  The time complexity of the operation depends on the
+       *  underlying sequence.
+       */</span>
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__x</span><span class="p">)</span> <span class="p">{</span> <span class="n">c</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">__x</span><span class="p">);</span> <span class="p">}</span>
+
+      <span class="cm">/**
+       *  @brief  Removes first element.
+       *
+       *  This is a typical %stack operation.  It shrinks the %stack
+       *  by one.  The time complexity of the operation depends on the
+       *  underlying sequence.
+       *
+       *  Note that no data is returned, and if the first element's
+       *  data is needed, it should be retrieved before pop() is
+       *  called.
+       */</span>
+    <span class="kt">void</span> <span class="n">pop</span><span class="p">()</span> <span class="p">{</span>
+		<span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		<span class="n">c</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+    <span class="p">}</span>
+
+	<span class="c1">// 省略其他非关键代码......</span>
+<span class="p">};</span> 
+</pre></table></code></div></div><h2 id="queue">queue</h2><p>队列有普通的先进先出的队列，还有优先队列，优先级队列不仅仅要按先后顺序，更强调优先级高的先出队列。</p><h3 id="普通队列的实现">普通队列的实现</h3><p>普通队列的实现与栈实现差不多，也是基于<code class="language-plaintext highlighter-rouge">deque</code>实现的。</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+</pre><td class="rouge-code"><pre><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Sequence</span> <span class="o">=</span> <span class="n">deque</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">&gt;</span> <span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">queue</span> <span class="p">{</span>
+<span class="c1">// concept requirements</span>
+<span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Sequence</span><span class="o">::</span><span class="n">value_type</span> <span class="n">_Sequence_value_type</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+    <span class="k">typedef</span> <span class="k">typename</span>	<span class="n">_Sequence</span><span class="o">::</span><span class="n">value_type</span>		<span class="n">value_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">typename</span>	<span class="n">_Sequence</span><span class="o">::</span><span class="n">reference</span>		<span class="n">reference</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">typename</span>	<span class="n">_Sequence</span><span class="o">::</span><span class="n">const_reference</span>	<span class="n">const_reference</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">typename</span>	<span class="n">_Sequence</span><span class="o">::</span><span class="n">size_type</span>		<span class="n">size_type</span><span class="p">;</span>
+    <span class="k">typedef</span>		<span class="n">_Sequence</span>			<span class="n">container_type</span><span class="p">;</span>
+
+<span class="nl">protected:</span>
+      <span class="cm">/*  Maintainers wondering why this isn't uglified as per style
+       *  guidelines should note that this name is specified in the standard,
+       *  C++98 [23.2.3.1].
+       *  (Why? Presumably for the same reason that it's protected instead
+       *  of private: to allow derivation.  But none of the other
+       *  containers allow for derivation.  Odd.)
+       */</span>
+       <span class="c1">///  @c c is the underlying container.</span>
+    <span class="n">_Sequence</span> <span class="n">c</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+	<span class="n">queue</span><span class="p">()</span><span class="o">:</span> <span class="n">c</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+	<span class="c1">// 省略构造函数与析构函数......</span>
+
+    <span class="kt">bool</span> <span class="n">empty</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span> <span class="p">}</span>
+    <span class="n">size_type</span> <span class="n">size</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="p">}</span>
+
+    <span class="n">reference</span> <span class="n">front</span><span class="p">()</span> <span class="p">{</span>
+		<span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		<span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="n">reference</span> <span class="n">back</span><span class="p">()</span> <span class="p">{</span>
+		<span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		<span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Add data to the end of the %queue.</span>
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__x</span><span class="p">)</span> <span class="p">{</span> <span class="n">c</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">__x</span><span class="p">);</span> <span class="p">}</span>
+      
+    <span class="c1">// Removes first element.</span>
+    <span class="kt">void</span> <span class="n">pop</span><span class="p">()</span> <span class="p">{</span>
+		<span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		<span class="n">c</span><span class="p">.</span><span class="n">pop_front</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</pre></table></code></div></div><h3 id="优先队列priority_queue实现">优先队列priority_queue实现</h3><p>优先队列的实现原理是基于堆实现的，堆底层是数组，所以，这里<code class="language-plaintext highlighter-rouge">priority_queue</code>底层的序列容器是<code class="language-plaintext highlighter-rouge">vector</code>，选则<code class="language-plaintext highlighter-rouge">vector</code>而不是其他容器，是因为优先队列基于堆，而堆的各种操作中，插入、删除、都是从尾部插入、删除操作最后实际上物理删除的是尾部元素，而且其扩容是2倍扩容，符合二叉树下一层节点数目是上一次所有数目+1，二倍扩容恰好合适，当然也可以用其他容器（例如<code class="language-plaintext highlighter-rouge">deque</code>，但不是最优的）。至于堆实现优先队列的原理，这里不再叙述。源码实现如下：</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+</pre><td class="rouge-code"><pre><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Tp</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_Sequence</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="p">&gt;,</span> <span class="k">typename</span> <span class="n">_Compare</span>  <span class="o">=</span> <span class="n">less</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">_Sequence</span><span class="o">::</span><span class="n">value_type</span><span class="o">&gt;</span> <span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">priority_queue</span> <span class="p">{</span>
+<span class="cp">#ifdef _GLIBCXX_CONCEPT_CHECKS
+</span><span class="c1">// concept requirements</span>
+<span class="k">typedef</span> <span class="k">typename</span> <span class="n">_Sequence</span><span class="o">::</span><span class="n">value_type</span> <span class="n">_Sequence_value_type</span><span class="p">;</span>
+<span class="cp"># if __cplusplus &lt; 201103L
+</span>    <span class="n">__glibcxx_class_requires</span><span class="p">(</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_SGIAssignableConcept</span><span class="p">)</span>
+<span class="cp"># endif
+</span>    <span class="n">__glibcxx_class_requires</span><span class="p">(</span><span class="n">_Sequence</span><span class="p">,</span> <span class="n">_SequenceConcept</span><span class="p">)</span>
+    <span class="n">__glibcxx_class_requires</span><span class="p">(</span><span class="n">_Sequence</span><span class="p">,</span> <span class="n">_RandomAccessContainerConcept</span><span class="p">)</span>
+    <span class="n">__glibcxx_class_requires2</span><span class="p">(</span><span class="n">_Tp</span><span class="p">,</span> <span class="n">_Sequence_value_type</span><span class="p">,</span> <span class="n">_SameTypeConcept</span><span class="p">)</span>
+    <span class="n">__glibcxx_class_requires4</span><span class="p">(</span><span class="n">_Compare</span><span class="p">,</span> <span class="kt">bool</span><span class="p">,</span> <span class="n">_Tp</span><span class="p">,</span> <span class="n">_Tp</span><span class="p">,</span> <span class="n">_BinaryFunctionConcept</span><span class="p">)</span>
+<span class="cp">#endif
+</span>
+<span class="cp">#if __cplusplus &gt;= 201103L
+</span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Alloc</span><span class="p">&gt;</span>
+<span class="k">using</span> <span class="n">_Uses</span> <span class="o">=</span> <span class="k">typename</span>
+<span class="n">enable_if</span><span class="o">&lt;</span><span class="n">uses_allocator</span><span class="o">&lt;</span><span class="n">_Sequence</span><span class="p">,</span> <span class="n">_Alloc</span><span class="o">&gt;::</span><span class="n">value</span><span class="o">&gt;::</span><span class="n">type</span><span class="p">;</span>
+<span class="cp">#endif
+</span>
+<span class="nl">public:</span>
+    <span class="k">typedef</span> <span class="k">typename</span>	<span class="n">_Sequence</span><span class="o">::</span><span class="n">value_type</span>		<span class="n">value_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">typename</span>	<span class="n">_Sequence</span><span class="o">::</span><span class="n">reference</span>		 <span class="n">reference</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">typename</span>	<span class="n">_Sequence</span><span class="o">::</span><span class="n">const_reference</span>	   <span class="n">const_reference</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">typename</span>	<span class="n">_Sequence</span><span class="o">::</span><span class="n">size_type</span>		 <span class="n">size_type</span><span class="p">;</span>
+    <span class="k">typedef</span>		<span class="n">_Sequence</span>			    <span class="n">container_type</span><span class="p">;</span>
+    <span class="k">typedef</span>	       <span class="n">_Compare</span>				    <span class="n">value_compare</span><span class="p">;</span>
+
+<span class="nl">protected:</span>
+     <span class="n">_Sequence</span>  <span class="n">c</span><span class="p">;</span>
+    <span class="n">_Compare</span>   <span class="n">comp</span><span class="p">;</span>	<span class="c1">// 优先队列基于堆，而堆经常需要比较操作</span>
+
+<span class="nl">public:</span>
+    <span class="c1">//    *  @brief  Default constructor creates no elements.</span>
+    <span class="k">explicit</span> <span class="n">priority_queue</span><span class="p">(</span><span class="k">const</span> <span class="n">_Compare</span><span class="o">&amp;</span> <span class="n">__x</span> <span class="o">=</span> <span class="n">_Compare</span><span class="p">(),</span> <span class="k">const</span> <span class="n">_Sequence</span><span class="o">&amp;</span> <span class="n">__s</span> <span class="o">=</span> <span class="n">_Sequence</span><span class="p">())</span><span class="o">:</span> <span class="n">c</span><span class="p">(</span><span class="n">__s</span><span class="p">),</span> <span class="n">comp</span><span class="p">(</span><span class="n">__x</span><span class="p">)</span> <span class="p">{</span> 		
+        <span class="n">std</span><span class="o">::</span><span class="n">make_heap</span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">c</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">comp</span><span class="p">);</span> 	<span class="c1">// 构造堆</span>
+	<span class="p">}</span>
+
+	<span class="c1">// 省略其他构造函数......</span>
+
+      <span class="cm">/**
+       *  Returns true if the %queue is empty.
+       */</span>
+    <span class="kt">bool</span> <span class="n">empty</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> 
+		<span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span> 
+	<span class="p">}</span>
+
+      <span class="cm">/**  Returns the number of elements in the %queue.  */</span>
+    <span class="n">size_type</span> <span class="n">size</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="p">}</span>
+
+      <span class="cm">/**
+       *  Returns a read-only (constant) reference to the data at the first
+       *  element of the %queue.
+       */</span>
+    <span class="n">const_reference</span> <span class="n">top</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+		<span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		<span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+    <span class="p">}</span>
+
+      <span class="cm">/**
+       *  @brief  Add data to the %queue.
+       *  @param  __x  Data to be added.
+       *
+       *  This is a typical %queue operation.
+       *  The time complexity of the operation depends on the underlying
+       *  sequence.
+       */</span>
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__x</span><span class="p">)</span> <span class="p">{</span>		<span class="c1">// 优先队列中插入元素，先放到容器尾部，再进行“上移”操作使之满足堆性质。</span>
+		<span class="n">c</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">__x</span><span class="p">);</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">push_heap</span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">c</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">comp</span><span class="p">);</span>
+    <span class="p">}</span>
+
+      <span class="cm">/**
+       *  @brief  Removes first element.
+       *
+       *  This is a typical %queue operation.  It shrinks the %queue
+       *  by one.  The time complexity of the operation depends on the
+       *  underlying sequence.
+       *
+       *  Note that no data is returned, and if the first element's
+       *  data is needed, it should be retrieved before pop() is
+       *  called.
+       */</span>
+    <span class="kt">void</span> <span class="n">pop</span><span class="p">()</span> <span class="p">{</span>		<span class="c1">//从优先队列中弹出首元素</span>
+		<span class="n">__glibcxx_requires_nonempty</span><span class="p">();</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">pop_heap</span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">c</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">comp</span><span class="p">);</span>
+		<span class="n">c</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</pre></table></code></div></div><p>可以看到只要理解了堆的实现原理，优先队列的实现原理就非常容易理解，堆的相关STL源码分析不在这里继续分析。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/superLish.github.io/categories/cs/'>CS</a>, <a href='/superLish.github.io/categories/c-c/'>C/C++</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/superLish.github.io/tags/stl/" class="post-tag no-text-decoration" >STL</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>Recent Update</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/superLish.github.io/posts/%E6%97%A0%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E8%BF%94%E5%9B%9E%E7%AC%ACk%E5%A4%A7%E7%9A%84%E6%95%B0/">算法题：无序数组中返回第k大的数.md</a><li><a href="/superLish.github.io/posts/%E6%8E%92%E5%BA%8F/">排序</a><li><a href="/superLish.github.io/posts/%E7%BD%91%E7%BB%9C%E9%94%99%E8%AF%AF-Destination_unreachable-Host_administratively_prohibited/">网络错误:Destination_unreachable:Host_administratively_prohibited</a><li><a href="/superLish.github.io/posts/TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E5%88%86%E6%89%8B/">TCP三次握手与四次分手</a><li><a href="/superLish.github.io/posts/TCP%E7%9A%84%E5%B7%A5%E4%BD%9C%E9%80%BB%E8%BE%91/">谈谈TCP</a></ul></div><div id="access-tags"> <span>Trending Tags</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">Contents</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/superLish.github.io/posts/STL%E5%85%B3%E8%81%94%E5%AE%B9%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"><div class="card-body"> <span class="timeago small" > Oct 11, 2016 <i class="unloaded">2016-10-11T08:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>STL关联容器学习笔记</h3><div class="text-muted small"><p> 这里简单学习一下STL关联容器，主要是map、multimap、set、multiset以及unordered_map。前四个底层实现都是利用红黑树实现的，查找算法时间复杂度为O(log(n))，而unordered_map从名字上就知道是无序容器，其实现原理类似哈希表，查找算法时间复杂度O(1)。 set、multiset、map、multimap set容器是一个存储有序唯一元素的数据...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/STL%E5%A0%86%E7%9B%B8%E5%85%B3%E5%AE%9E%E7%8E%B0%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"><div class="card-body"> <span class="timeago small" > Nov 12, 2016 <i class="unloaded">2016-11-12T08:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>STL堆相关实现学习笔记</h3><div class="text-muted small"><p> 堆 堆是十分重要的数据结构，我们常用的优先队列就是基于堆实现的数据结构，堆排序也是基于堆实现的，所以，我们要理解堆的实现，之前自己根据堆的原理自己实现了堆，现在来分析一下STL中堆的实现代码，STL的堆实现相比自己实现的代码肯定要多很多，但原理是一样的，我们下面看一下。 堆的实现 STL中提供了堆的一系列代码供人使用。我们分析一下。我们知道堆的存储形式是利用数组实现的，那给定一个数组序列，...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B/"><div class="card-body"> <span class="timeago small" > Feb 20, 2015 <i class="unloaded">2015-02-20T08:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>多线程编程</h3><div class="text-muted small"><p> 多线程编程可以说每个程序员的基本功，同时也是开发中的难点之一，下面讲述线程的创建及常用的几种线程同步的方式，最后对多线程编程进行了总结与思考并给出代码示例。 一、创建线程 多线程编程的第一步，创建线程。创建线程其实是增加了一个控制流程，使得同一进程中存在多个控制流程并发或者并行执行。 线程创建函数，其他函数这里不再列出，可以参考pthread.h。 #include&lt;pthread...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/superLish.github.io/posts/%E5%A0%86%E6%8E%92%E5%BA%8F/" class="btn btn-outline-primary" prompt="Older"><p>堆排序</p></a> <a href="/superLish.github.io/posts/STL%E5%85%B3%E8%81%94%E5%AE%B9%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="btn btn-outline-primary" prompt="Newer"><p>STL关联容器学习笔记</p></a></div></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2021 <a href="https://github.com/superLish">lisheng</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">Trending Tags</h4><a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/superLish.github.io/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://superLish.github.io{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>

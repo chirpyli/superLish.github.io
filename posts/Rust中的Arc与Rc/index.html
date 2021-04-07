@@ -1,0 +1,567 @@
+<!DOCTYPE html><html lang="en-US" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="pv-cache-enabled" content="false"><meta name="generator" content="Jekyll v4.2.0" /><meta property="og:title" content="Rust中的Arc与Rc" /><meta name="author" content="lisheng" /><meta property="og:locale" content="en_US" /><meta name="description" content="Rc 单线程引用计数。不是线程安全的，如果需要线程间引用计数可用Arc。注意他们之间的实现区别。关键源码实现如下，重点可关注Clone和Drop以及new的实现细节。 ```rust //! Single-threaded reference-counting pointers. ‘Rc’ stands for ‘Reference Counted’." /><meta property="og:description" content="Rc 单线程引用计数。不是线程安全的，如果需要线程间引用计数可用Arc。注意他们之间的实现区别。关键源码实现如下，重点可关注Clone和Drop以及new的实现细节。 ```rust //! Single-threaded reference-counting pointers. ‘Rc’ stands for ‘Reference Counted’." /><link rel="canonical" href="https://superlish.github.io/superLish.github.io/posts/Rust%E4%B8%AD%E7%9A%84Arc%E4%B8%8ERc/" /><meta property="og:url" content="https://superlish.github.io/superLish.github.io/posts/Rust%E4%B8%AD%E7%9A%84Arc%E4%B8%8ERc/" /><meta property="og:site_name" content="ChirpyLi" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2020-11-23T20:55:00+08:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Rust中的Arc与Rc" /><meta name="twitter:site" content="@twitter_username" /><meta name="twitter:creator" content="@lisheng" /><meta name="google-site-verification" content="google_meta_tag_verification" /> <script type="application/ld+json"> {"description":"Rc 单线程引用计数。不是线程安全的，如果需要线程间引用计数可用Arc。注意他们之间的实现区别。关键源码实现如下，重点可关注Clone和Drop以及new的实现细节。 ```rust //! Single-threaded reference-counting pointers. ‘Rc’ stands for ‘Reference Counted’.","url":"https://superlish.github.io/superLish.github.io/posts/Rust%E4%B8%AD%E7%9A%84Arc%E4%B8%8ERc/","headline":"Rust中的Arc与Rc","dateModified":"2020-11-23T20:55:00+08:00","@type":"BlogPosting","datePublished":"2020-11-23T20:55:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://superlish.github.io/superLish.github.io/posts/Rust%E4%B8%AD%E7%9A%84Arc%E4%B8%8ERc/"},"author":{"@type":"Person","name":"lisheng"},"@context":"https://schema.org"}</script><title>Rust中的Arc与Rc | ChirpyLi</title><link rel="shortcut icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/superLish.github.io/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/superLish.github.io/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/superLish.github.io/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/superLish.github.io/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/superLish.github.io/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/superLish.github.io/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/superLish.github.io/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/superLish.github.io/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/superLish.github.io/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/superLish.github.io/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/superLish.github.io/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/superLish.github.io/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/superLish.github.io/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/superLish.github.io/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/superLish.github.io/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/superLish.github.io/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials"><link rel="dns-prefetch" href="https://www.google-analytics.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="stylesheet" href="/superLish.github.io/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/superLish.github.io/assets/js/dist/post.min.js"></script> <script defer src="/superLish.github.io/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id="></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', ''); }); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/superLish.github.io/" alt="avatar" class="mx-auto"> <img src="https://cdn.jsdelivr.net/gh/cotes2020/chirpy-images/commons/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/superLish.github.io/">ChirpyLi</a></div><div class="site-subtitle font-italic">love yourself</div></div><ul class="w-100"><li class="nav-item"> <a href="/superLish.github.io/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/superLish.github.io/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/superLish.github.io/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/superLish.github.io/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/superLish.github.io/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/superLish" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/superLish.github.io/"> Posts </a> </span> <span>Rust中的Arc与Rc</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Rust中的Arc与Rc</h1><div class="post-meta text-muted d-flex flex-column"><div> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Mon, Nov 23, 2020, 8:55 PM +0800" > Nov 23, 2020 <i class="unloaded">2020-11-23T20:55:00+08:00</i> </span> by <span class="author"> lisheng </span></div><div> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="2071 words">11 min</span></div></div><div class="post-content"><h3 id="rc">Rc</h3><p>单线程引用计数。不是线程安全的，如果需要线程间引用计数可用<code class="language-plaintext highlighter-rouge">Arc</code>。注意他们之间的实现区别。关键源码实现如下，重点可关注<code class="language-plaintext highlighter-rouge">Clone</code>和<code class="language-plaintext highlighter-rouge">Drop</code>以及<code class="language-plaintext highlighter-rouge">new</code>的实现细节。</p><div class="language-rust highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+</pre><td class="rouge-code"><pre><span class="c">//! Single-threaded reference-counting pointers. 'Rc' stands for 'Reference Counted'.</span>
+
+<span class="c">// This is repr(C) to future-proof against possible field-reordering, which</span>
+<span class="c">// would interfere with otherwise safe [into|from]_raw() of transmutable inner types.</span>
+<span class="nd">#[repr(C)]</span>
+<span class="k">struct</span> <span class="n">RcBox</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">strong</span><span class="p">:</span> <span class="n">Cell</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span><span class="p">,</span>    <span class="c">// 注意这里与Arc的区别，不是原子操作</span>
+    <span class="n">weak</span><span class="p">:</span> <span class="n">Cell</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c">/// A single-threaded reference-counting pointer. 'Rc' stands for 'Reference Counted'.</span>
+<span class="nd">#[cfg_attr(not(test),</span> <span class="nd">rustc_diagnostic_item</span> <span class="nd">=</span> <span class="s">"Rc"</span><span class="nd">)]</span>
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="nb">Rc</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">ptr</span><span class="p">:</span> <span class="n">NonNull</span><span class="o">&lt;</span><span class="n">RcBox</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+    <span class="n">phantom</span><span class="p">:</span> <span class="n">PhantomData</span><span class="o">&lt;</span><span class="n">RcBox</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="o">!</span><span class="nn">marker</span><span class="p">::</span><span class="nb">Send</span> <span class="k">for</span> <span class="nb">Rc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{}</span>
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="o">!</span><span class="nn">marker</span><span class="p">::</span><span class="n">Sync</span> <span class="k">for</span> <span class="nb">Rc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="nb">Rc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nd">#[inline(always)]</span>
+    <span class="k">fn</span> <span class="nf">inner</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="n">RcBox</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c">// This unsafety is ok because while this Rc is alive we're guaranteed that the inner pointer is valid.</span>
+        <span class="k">unsafe</span> <span class="p">{</span> <span class="k">self</span><span class="py">.ptr</span><span class="nf">.as_ref</span><span class="p">()</span> <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">fn</span> <span class="nf">from_inner</span><span class="p">(</span><span class="n">ptr</span><span class="p">:</span> <span class="n">NonNull</span><span class="o">&lt;</span><span class="n">RcBox</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Self</span> <span class="p">{</span>
+        <span class="n">Self</span> <span class="p">{</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">phantom</span><span class="p">:</span> <span class="n">PhantomData</span> <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">unsafe</span> <span class="k">fn</span> <span class="nf">from_ptr</span><span class="p">(</span><span class="n">ptr</span><span class="p">:</span> <span class="o">*</span><span class="k">mut</span> <span class="n">RcBox</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Self</span> <span class="p">{</span>
+        <span class="nn">Self</span><span class="p">::</span><span class="nf">from_inner</span><span class="p">(</span><span class="k">unsafe</span> <span class="p">{</span> <span class="nn">NonNull</span><span class="p">::</span><span class="nf">new_unchecked</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span> <span class="p">})</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="nb">Rc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c">/// Constructs a new `Rc&lt;T&gt;`.</span>
+    <span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Rc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c">// There is an implicit weak pointer owned by all the strong</span>
+        <span class="c">// pointers, which ensures that the weak destructor never frees</span>
+        <span class="c">// the allocation while the strong destructor is running, even</span>
+        <span class="c">// if the weak pointer is stored inside the strong one.</span>
+        <span class="nn">Self</span><span class="p">::</span><span class="nf">from_inner</span><span class="p">(</span>
+            <span class="nn">Box</span><span class="p">::</span><span class="nf">leak</span><span class="p">(</span><span class="k">box</span> <span class="n">RcBox</span> <span class="p">{</span> <span class="n">strong</span><span class="p">:</span> <span class="nn">Cell</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">weak</span><span class="p">:</span> <span class="nn">Cell</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">value</span> <span class="p">})</span><span class="nf">.into</span><span class="p">(),</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="n">Deref</span> <span class="k">for</span> <span class="nb">Rc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">Target</span> <span class="o">=</span> <span class="n">T</span><span class="p">;</span>
+
+    <span class="nd">#[inline(always)]</span>
+    <span class="k">fn</span> <span class="nf">deref</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="n">T</span> <span class="p">{</span>
+        <span class="o">&amp;</span><span class="k">self</span><span class="nf">.inner</span><span class="p">()</span><span class="py">.value</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="n">Clone</span> <span class="k">for</span> <span class="nb">Rc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c">/// Makes a clone of the `Rc` pointer.</span>
+    <span class="c">/// This creates another pointer to the same allocation, increasing the strong reference count.</span>
+    <span class="nd">#[inline]</span>
+    <span class="k">fn</span> <span class="nf">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Rc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">self</span><span class="nf">.inner</span><span class="p">()</span><span class="nf">.inc_strong</span><span class="p">();</span>      <span class="c">// 克隆一次，引用计数+1</span>
+        <span class="nn">Self</span><span class="p">::</span><span class="nf">from_inner</span><span class="p">(</span><span class="k">self</span><span class="py">.ptr</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">unsafe</span> <span class="k">impl</span><span class="o">&lt;</span><span class="nd">#[may_dangle]</span> <span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="n">Drop</span> <span class="k">for</span> <span class="nb">Rc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c">/// Drops the `Rc`.</span>
+    <span class="c">/// This will decrement the strong reference count. If the strong reference</span>
+    <span class="c">/// count reaches zero then the only other references (if any) are [`Weak`], so we `drop` the inner value.</span>
+    <span class="k">fn</span> <span class="k">drop</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">unsafe</span> <span class="p">{</span>
+            <span class="k">self</span><span class="nf">.inner</span><span class="p">()</span><span class="nf">.dec_strong</span><span class="p">();</span>      <span class="c">// 引用计数-1</span>
+            <span class="k">if</span> <span class="k">self</span><span class="nf">.inner</span><span class="p">()</span><span class="nf">.strong</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>         <span class="c">// 引用计数到0的处理</span>
+                <span class="c">// destroy the contained object</span>
+                <span class="nn">ptr</span><span class="p">::</span><span class="nf">drop_in_place</span><span class="p">(</span><span class="nn">Self</span><span class="p">::</span><span class="nf">get_mut_unchecked</span><span class="p">(</span><span class="k">self</span><span class="p">));</span>
+
+                <span class="c">// remove the implicit "strong weak" pointer now that we've destroyed the contents.</span>
+                <span class="k">self</span><span class="nf">.inner</span><span class="p">()</span><span class="nf">.dec_weak</span><span class="p">();</span>
+
+                <span class="k">if</span> <span class="k">self</span><span class="nf">.inner</span><span class="p">()</span><span class="nf">.weak</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+                    <span class="n">Global</span><span class="nf">.dealloc</span><span class="p">(</span><span class="k">self</span><span class="py">.ptr</span><span class="nf">.cast</span><span class="p">(),</span> <span class="nn">Layout</span><span class="p">::</span><span class="nf">for_value</span><span class="p">(</span><span class="k">self</span><span class="py">.ptr</span><span class="nf">.as_ref</span><span class="p">()));</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</pre></table></code></div></div><h3 id="arc">Arc</h3><p>与<code class="language-plaintext highlighter-rouge">Rc</code>的区别主要是线程安全的引用计数。实现上最大的不同是用原子操作进行引用记数以实现线程间安全。但是需要强调一点的是，<code class="language-plaintext highlighter-rouge">Arc</code>共享引用的是不可变数据。如果允许可变引用，则可能发生在多个线程中同时修改数据的情况，这是不安全的，如果需要修改数据，则需要给内部数据加锁(例如：<code class="language-plaintext highlighter-rouge">Mutex,RwLock</code>)以保证线程间写安全，所以Rust的代码中经常会看到<code class="language-plaintext highlighter-rouge">Arc&lt;Mutxe&lt;T&gt;&gt;</code>和<code class="language-plaintext highlighter-rouge">Arc&lt;RwLock&lt;T&gt;&gt;</code>。</p><p>以下是<code class="language-plaintext highlighter-rouge">Arc</code>的关键实现代码，详细代码见<a href="https://doc.rust-lang.org/src/alloc/sync.rs.html#207-210">sync.rs</a>，重点同样是关注<code class="language-plaintext highlighter-rouge">Clone</code>和<code class="language-plaintext highlighter-rouge">Drop</code>以及<code class="language-plaintext highlighter-rouge">new</code>的实现。</p><div class="language-rust highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+</pre><td class="rouge-code"><pre><span class="c">/// A thread-safe reference-counting pointer. 'Arc' stands for 'Atomically Reference Counted'.</span>
+<span class="c">///</span>
+<span class="c">/// The type `Arc&lt;T&gt;` provides shared ownership of a value of type `T`,</span>
+<span class="c">/// allocated in the heap. Invoking [`clone`][clone] on `Arc` produces</span>
+<span class="c">/// a new `Arc` instance, which points to the same allocation on the heap as the</span>
+<span class="c">/// source `Arc`, while increasing a reference count. When the last `Arc`</span>
+<span class="c">/// pointer to a given allocation is destroyed, the value stored in that allocation (often</span>
+<span class="c">/// referred to as "inner value") is also dropped.</span>
+<span class="c">///</span>
+<span class="c">/// Shared references in Rust disallow mutation by default, and `Arc` is no</span>
+<span class="c">/// exception: you cannot generally obtain a mutable reference to something</span>
+<span class="c">/// inside an `Arc`. If you need to mutate through an `Arc`, use</span>
+<span class="c">/// [`Mutex`][mutex], [`RwLock`][rwlock], or one of the [`Atomic`][atomic] types.</span>
+<span class="c">///</span>
+<span class="c">/// ## Thread Safety</span>
+<span class="c">///</span>
+<span class="c">/// Unlike [`Rc&lt;T&gt;`], `Arc&lt;T&gt;` uses atomic operations for its reference</span>
+<span class="c">/// counting. This means that it is thread-safe. The disadvantage is that</span>
+<span class="c">/// atomic operations are more expensive than ordinary memory accesses. If you</span>
+<span class="c">/// are not sharing reference-counted allocations between threads, consider using</span>
+<span class="c">/// [`Rc&lt;T&gt;`] for lower overhead. [`Rc&lt;T&gt;`] is a safe default, because the</span>
+<span class="c">/// compiler will catch any attempt to send an [`Rc&lt;T&gt;`] between threads.</span>
+<span class="c">/// However, a library might choose `Arc&lt;T&gt;` in order to give library consumers more flexibility.</span>
+<span class="nd">#[cfg_attr(not(test),</span> <span class="nd">rustc_diagnostic_item</span> <span class="nd">=</span> <span class="s">"Arc"</span><span class="nd">)]</span>
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">ptr</span><span class="p">:</span> <span class="n">NonNull</span><span class="o">&lt;</span><span class="n">ArcInner</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+    <span class="n">phantom</span><span class="p">:</span> <span class="n">PhantomData</span><span class="o">&lt;</span><span class="n">ArcInner</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">unsafe</span> <span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span> <span class="o">+</span> <span class="n">Sync</span> <span class="o">+</span> <span class="nb">Send</span><span class="o">&gt;</span> <span class="nb">Send</span> <span class="k">for</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{}</span>
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">unsafe</span> <span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span> <span class="o">+</span> <span class="n">Sync</span> <span class="o">+</span> <span class="nb">Send</span><span class="o">&gt;</span> <span class="n">Sync</span> <span class="k">for</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">from_inner</span><span class="p">(</span><span class="n">ptr</span><span class="p">:</span> <span class="n">NonNull</span><span class="o">&lt;</span><span class="n">ArcInner</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Self</span> <span class="p">{</span>
+        <span class="n">Self</span> <span class="p">{</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">phantom</span><span class="p">:</span> <span class="n">PhantomData</span> <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">unsafe</span> <span class="k">fn</span> <span class="nf">from_ptr</span><span class="p">(</span><span class="n">ptr</span><span class="p">:</span> <span class="o">*</span><span class="k">mut</span> <span class="n">ArcInner</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Self</span> <span class="p">{</span>
+        <span class="k">unsafe</span> <span class="p">{</span> <span class="nn">Self</span><span class="p">::</span><span class="nf">from_inner</span><span class="p">(</span><span class="nn">NonNull</span><span class="p">::</span><span class="nf">new_unchecked</span><span class="p">(</span><span class="n">ptr</span><span class="p">))</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// This is repr(C) to future-proof against possible field-reordering, which</span>
+<span class="c">// would interfere with otherwise safe [into|from]_raw() of transmutable inner types.</span>
+<span class="nd">#[repr(C)]</span>
+<span class="k">struct</span> <span class="n">ArcInner</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">strong</span><span class="p">:</span> <span class="nn">atomic</span><span class="p">::</span><span class="n">AtomicUsize</span><span class="p">,</span>        <span class="c">// 强引用记数，线程安全</span>
+
+    <span class="c">// the value usize::MAX acts as a sentinel for temporarily "locking" the</span>
+    <span class="c">// ability to upgrade weak pointers or downgrade strong ones; this is used</span>
+    <span class="c">// to avoid races in `make_mut` and `get_mut`.</span>
+    <span class="n">weak</span><span class="p">:</span> <span class="nn">atomic</span><span class="p">::</span><span class="n">AtomicUsize</span><span class="p">,</span>
+
+    <span class="n">data</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">unsafe</span> <span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span> <span class="o">+</span> <span class="n">Sync</span> <span class="o">+</span> <span class="nb">Send</span><span class="o">&gt;</span> <span class="nb">Send</span> <span class="k">for</span> <span class="n">ArcInner</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{}</span>
+<span class="k">unsafe</span> <span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span> <span class="o">+</span> <span class="n">Sync</span> <span class="o">+</span> <span class="nb">Send</span><span class="o">&gt;</span> <span class="n">Sync</span> <span class="k">for</span> <span class="n">ArcInner</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{}</span>
+
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c">/// Constructs a new `Arc&lt;T&gt;`.</span>
+    <span class="nd">#[inline]</span>
+    <span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c">// Start the weak pointer count as 1 which is the weak pointer that's</span>
+        <span class="c">// held by all the strong pointers (kinda), see std/rc.rs for more info</span>
+        <span class="k">let</span> <span class="n">x</span><span class="p">:</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="mi">_</span><span class="o">&gt;</span> <span class="o">=</span> <span class="k">box</span> <span class="n">ArcInner</span> <span class="p">{</span>
+            <span class="n">strong</span><span class="p">:</span> <span class="nn">atomic</span><span class="p">::</span><span class="nn">AtomicUsize</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">weak</span><span class="p">:</span> <span class="nn">atomic</span><span class="p">::</span><span class="nn">AtomicUsize</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">data</span><span class="p">,</span>
+        <span class="p">};</span>
+        <span class="nn">Self</span><span class="p">::</span><span class="nf">from_inner</span><span class="p">(</span><span class="nn">Box</span><span class="p">::</span><span class="nf">leak</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="nf">.into</span><span class="p">())</span>
+    <span class="p">}</span>
+
+    <span class="c">// ...</span>
+<span class="p">}</span>
+
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="n">Clone</span> <span class="k">for</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c">/// Makes a clone of the `Arc` pointer.</span>
+    <span class="c">///</span>
+    <span class="c">/// This creates another pointer to the same allocation, increasing the</span>
+    <span class="c">/// strong reference count.</span>
+    <span class="nd">#[inline]</span>
+    <span class="k">fn</span> <span class="nf">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">old_size</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.inner</span><span class="p">()</span><span class="py">.strong</span><span class="nf">.fetch_add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Relaxed</span><span class="p">);</span>   <span class="c">// 引用记数+1,指向的位置不变</span>
+        <span class="k">if</span> <span class="n">old_size</span> <span class="o">&gt;</span> <span class="n">MAX_REFCOUNT</span> <span class="p">{</span>
+            <span class="nf">abort</span><span class="p">();</span>
+        <span class="p">}</span>
+
+        <span class="nn">Self</span><span class="p">::</span><span class="nf">from_inner</span><span class="p">(</span><span class="k">self</span><span class="py">.ptr</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">unsafe</span> <span class="k">impl</span><span class="o">&lt;</span><span class="nd">#[may_dangle]</span> <span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="n">Drop</span> <span class="k">for</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c">/// Drops the `Arc`.</span>
+    <span class="c">///</span>
+    <span class="c">/// This will decrement the strong reference count. If the strong reference</span>
+    <span class="c">/// count reaches zero then the only other references (if any) are</span>
+    <span class="c">/// [`Weak`], so we `drop` the inner value.</span>
+    <span class="nd">#[inline]</span>
+    <span class="k">fn</span> <span class="k">drop</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c">// Because `fetch_sub` is already atomic, we do not need to synchronize</span>
+        <span class="c">// with other threads unless we are going to delete the object. This</span>
+        <span class="c">// same logic applies to the below `fetch_sub` to the `weak` count.</span>
+        <span class="k">if</span> <span class="k">self</span><span class="nf">.inner</span><span class="p">()</span><span class="py">.strong</span><span class="nf">.fetch_sub</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Release</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="p">{</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c">// This fence is needed to prevent reordering of use of the data and</span>
+        <span class="c">// deletion of the data.  Because it is marked `Release`, the decreasing</span>
+        <span class="c">// of the reference count synchronizes with this `Acquire` fence. This</span>
+        <span class="c">// means that use of the data happens before decreasing the reference</span>
+        <span class="c">// count, which happens before this fence, which happens before the</span>
+        <span class="c">// deletion of the data.</span>
+        <span class="c">//</span>
+        <span class="c">// As explained in the [Boost documentation][1],</span>
+        <span class="c">//</span>
+        <span class="c">// &gt; It is important to enforce any possible access to the object in one</span>
+        <span class="c">// &gt; thread (through an existing reference) to *happen before* deleting</span>
+        <span class="c">// &gt; the object in a different thread. This is achieved by a "release"</span>
+        <span class="c">// &gt; operation after dropping a reference (any access to the object</span>
+        <span class="c">// &gt; through this reference must obviously happened before), and an</span>
+        <span class="c">// &gt; "acquire" operation before deleting the object.</span>
+        <span class="c">//</span>
+        <span class="c">// In particular, while the contents of an Arc are usually immutable, it's</span>
+        <span class="c">// possible to have interior writes to something like a Mutex&lt;T&gt;. Since a</span>
+        <span class="c">// Mutex is not acquired when it is deleted, we can't rely on its</span>
+        <span class="c">// synchronization logic to make writes in thread A visible to a destructor</span>
+        <span class="c">// running in thread B.</span>
+        <span class="c">//</span>
+        <span class="c">// Also note that the Acquire fence here could probably be replaced with an</span>
+        <span class="c">// Acquire load, which could improve performance in highly-contended</span>
+        <span class="c">// situations. See [2].</span>
+        <span class="nd">acquire!</span><span class="p">(</span><span class="k">self</span><span class="nf">.inner</span><span class="p">()</span><span class="py">.strong</span><span class="p">);</span>
+
+        <span class="k">unsafe</span> <span class="p">{</span>
+            <span class="k">self</span><span class="nf">.drop_slow</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"rust1"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.0.0"</span><span class="nd">)]</span>
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="o">?</span><span class="n">Sized</span><span class="o">&gt;</span> <span class="n">Deref</span> <span class="k">for</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">Target</span> <span class="o">=</span> <span class="n">T</span><span class="p">;</span>
+
+    <span class="nd">#[inline]</span>
+    <span class="k">fn</span> <span class="nf">deref</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="n">T</span> <span class="p">{</span>
+        <span class="o">&amp;</span><span class="k">self</span><span class="nf">.inner</span><span class="p">()</span><span class="py">.data</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h3 id="示例代码">示例代码</h3><div class="language-rust highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre><td class="rouge-code"><pre><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="n">Mutex</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">rc</span><span class="p">::</span><span class="nb">Rc</span><span class="p">;</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"Arc or Rc!"</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">r0</span> <span class="o">=</span> <span class="nn">Rc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="n">r0</span><span class="nf">.clone</span><span class="p">();</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"rc count: {}. r0 ptr: {:?}, r1 ptr: {:?}"</span><span class="p">,</span> <span class="nn">Rc</span><span class="p">::</span><span class="nf">strong_count</span><span class="p">(</span><span class="o">&amp;</span><span class="n">r0</span><span class="p">),</span> <span class="nn">Rc</span><span class="p">::</span><span class="nf">as_ptr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">r0</span><span class="p">),</span> <span class="nn">Rc</span><span class="p">::</span><span class="nf">as_ptr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">r1</span><span class="p">));</span>
+
+    <span class="k">let</span> <span class="n">ar0</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">ar1</span> <span class="o">=</span> <span class="n">ar0</span><span class="nf">.clone</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">armut0</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Mutex</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">100</span><span class="p">));</span>     <span class="c">// 要想写操作，必须加锁，如果不加锁的话，也可以实现写操作，但不是写的同一个地址，线程间的数据会不一致。</span>
+    <span class="k">let</span> <span class="n">armut1</span> <span class="o">=</span> <span class="n">armut0</span><span class="nf">.clone</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">handle</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">lock</span> <span class="o">=</span> <span class="n">armut1</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+        <span class="o">*</span><span class="n">lock</span> <span class="o">=</span> <span class="o">*</span><span class="n">ar1</span><span class="p">;</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"ar1 ptr: {:?}. mute change to {}"</span><span class="p">,</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">as_ptr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar1</span><span class="p">),</span> <span class="o">*</span><span class="n">lock</span><span class="p">);</span>
+    <span class="p">});</span>
+    <span class="n">handle</span><span class="nf">.join</span><span class="p">();</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"arc count: {}. arc0 ptr: {:?}. arcmut0 value: {}"</span><span class="p">,</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">strong_count</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar0</span><span class="p">),</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">as_ptr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar0</span><span class="p">),</span> <span class="o">*</span><span class="n">armut0</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="c">// 运行结果：</span>
+<span class="c">// Arc or Rc!</span>
+<span class="c">// rc count: 2. r0 ptr: 0x559d87cb6b60, r1 ptr: 0x559d87cb6b60</span>
+<span class="c">// ar1 ptr: 0x559d87cb6b80. mute change to 10</span>
+<span class="c">// arc count: 1. arc0 ptr: 0x559d87cb6b80. arcmut0 value: 10</span>
+</pre></table></code></div></div></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/superLish.github.io/categories/cs/'>CS</a>, <a href='/superLish.github.io/categories/rust/'>Rust</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/superLish.github.io/tags/rust/" class="post-tag no-text-decoration" >Rust</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>Recent Update</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/superLish.github.io/posts/%E6%97%A0%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E8%BF%94%E5%9B%9E%E7%AC%ACk%E5%A4%A7%E7%9A%84%E6%95%B0/">算法题：无序数组中返回第k大的数.md</a><li><a href="/superLish.github.io/posts/%E6%8E%92%E5%BA%8F/">排序</a><li><a href="/superLish.github.io/posts/%E7%BD%91%E7%BB%9C%E9%94%99%E8%AF%AF-Destination_unreachable-Host_administratively_prohibited/">网络错误:Destination_unreachable:Host_administratively_prohibited</a><li><a href="/superLish.github.io/posts/TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E5%88%86%E6%89%8B/">TCP三次握手与四次分手</a><li><a href="/superLish.github.io/posts/TCP%E7%9A%84%E5%B7%A5%E4%BD%9C%E9%80%BB%E8%BE%91/">谈谈TCP</a></ul></div><div id="access-tags"> <span>Trending Tags</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">Contents</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/superLish.github.io/posts/Rust%E6%9B%B4%E6%8D%A2Crates%E6%BA%90/"><div class="card-body"> <span class="timeago small" > Sep 8, 2017 <i class="unloaded">2017-09-08T20:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Rust更换Crates源</h3><div class="text-muted small"><p> Rust编译时遇到如下问题： Downloading futures v0.1.19 warning: spurious network error (2 tries remaining): [28] Timeout was reached (Operation timed out after 30857 milliseconds with 0 out of 0 bytes received...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/RefCell%E5%92%8C%E5%86%85%E9%83%A8%E5%8F%AF%E5%8F%98%E6%80%A7/"><div class="card-body"> <span class="timeago small" > Oct 16, 2017 <i class="unloaded">2017-10-16T20:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>RefCell和内部可变性</h3><div class="text-muted small"><p> RefCell Rust在编译阶段会进行严格的借用规则检查，规则如下： 在任意给定时间，要么只能有一个可变引用，要么只能有多个不可变引用。 引用必须总是有效。 即在编译阶段，当有一个不可变值时，不能可变的借用它。如下代码所示： fn main() { let x = 5; let y = &amp;mut x; } 会产生编译错误： err...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/Rust%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9Fbound%E7%94%A8%E4%BA%8E%E6%B3%9B%E5%9E%8B%E7%9A%84%E5%BC%95%E7%94%A8/"><div class="card-body"> <span class="timeago small" > Oct 17, 2017 <i class="unloaded">2017-10-17T20:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Rust生命周期bound用于泛型的引用</h3><div class="text-muted small"><p> 在实际编程中，可能会出现泛型引用这种情况，我们会编写如下的代码： struct Inner&lt;'a, T&gt; { data: &amp;'a T, } 会产生编译错误： error[E0309]: the parameter type `T` may not live long enough --&gt; src/main.rs:16:5 | 15 | struc...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/superLish.github.io/posts/%E6%A0%91%E5%A0%86/" class="btn btn-outline-primary" prompt="Older"><p>树堆</p></a> <a href="/superLish.github.io/posts/Rust%E5%BC%82%E6%AD%A5%E4%B9%8B%E8%87%AA%E5%B7%B1%E6%9E%84%E9%80%A0block_on/" class="btn btn-outline-primary" prompt="Newer"><p>Rust异步之自己构造block_on</p></a></div></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2021 <a href="https://github.com/superLish">lisheng</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">Trending Tags</h4><a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/superLish.github.io/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://superLish.github.io{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>

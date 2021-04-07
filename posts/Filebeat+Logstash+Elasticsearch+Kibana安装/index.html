@@ -1,0 +1,323 @@
+<!DOCTYPE html><html lang="en-US" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="pv-cache-enabled" content="false"><meta name="generator" content="Jekyll v4.2.0" /><meta property="og:title" content="Filebeat+Logstash+Elasticsearch+Kibana安装" /><meta name="author" content="lisheng" /><meta property="og:locale" content="en_US" /><meta name="description" content="Filebeat安装 Filebeat使用Go语言，无须安装java运行环境。 安装Filebeat 从官网下载安装包，解压后放到你想要安装的目录就可以了 1 2 curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.5.1-linux-x86_64.tar.gz tar xzvf filebeat-6.5.1-linux-x86_64.tar.gz" /><meta property="og:description" content="Filebeat安装 Filebeat使用Go语言，无须安装java运行环境。 安装Filebeat 从官网下载安装包，解压后放到你想要安装的目录就可以了 1 2 curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.5.1-linux-x86_64.tar.gz tar xzvf filebeat-6.5.1-linux-x86_64.tar.gz" /><link rel="canonical" href="https://superlish.github.io/superLish.github.io/posts/Filebeat+Logstash+Elasticsearch+Kibana%E5%AE%89%E8%A3%85/" /><meta property="og:url" content="https://superlish.github.io/superLish.github.io/posts/Filebeat+Logstash+Elasticsearch+Kibana%E5%AE%89%E8%A3%85/" /><meta property="og:site_name" content="ChirpyLi" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2018-12-03T13:25:00+08:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Filebeat+Logstash+Elasticsearch+Kibana安装" /><meta name="twitter:site" content="@twitter_username" /><meta name="twitter:creator" content="@lisheng" /><meta name="google-site-verification" content="google_meta_tag_verification" /> <script type="application/ld+json"> {"description":"Filebeat安装 Filebeat使用Go语言，无须安装java运行环境。 安装Filebeat 从官网下载安装包，解压后放到你想要安装的目录就可以了 1 2 curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.5.1-linux-x86_64.tar.gz tar xzvf filebeat-6.5.1-linux-x86_64.tar.gz","url":"https://superlish.github.io/superLish.github.io/posts/Filebeat+Logstash+Elasticsearch+Kibana%E5%AE%89%E8%A3%85/","headline":"Filebeat+Logstash+Elasticsearch+Kibana安装","dateModified":"2018-12-03T13:25:00+08:00","@type":"BlogPosting","datePublished":"2018-12-03T13:25:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://superlish.github.io/superLish.github.io/posts/Filebeat+Logstash+Elasticsearch+Kibana%E5%AE%89%E8%A3%85/"},"author":{"@type":"Person","name":"lisheng"},"@context":"https://schema.org"}</script><title>Filebeat+Logstash+Elasticsearch+Kibana安装 | ChirpyLi</title><link rel="shortcut icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/superLish.github.io/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/superLish.github.io/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/superLish.github.io/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/superLish.github.io/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/superLish.github.io/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/superLish.github.io/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/superLish.github.io/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/superLish.github.io/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/superLish.github.io/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/superLish.github.io/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/superLish.github.io/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/superLish.github.io/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/superLish.github.io/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/superLish.github.io/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/superLish.github.io/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/superLish.github.io/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials"><link rel="dns-prefetch" href="https://www.google-analytics.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="stylesheet" href="/superLish.github.io/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/superLish.github.io/assets/js/dist/post.min.js"></script> <script defer src="/superLish.github.io/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id="></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', ''); }); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/superLish.github.io/" alt="avatar" class="mx-auto"> <img src="https://cdn.jsdelivr.net/gh/cotes2020/chirpy-images/commons/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/superLish.github.io/">ChirpyLi</a></div><div class="site-subtitle font-italic">love yourself</div></div><ul class="w-100"><li class="nav-item"> <a href="/superLish.github.io/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/superLish.github.io/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/superLish.github.io/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/superLish.github.io/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/superLish.github.io/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/superLish" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/superLish.github.io/"> Posts </a> </span> <span>Filebeat+Logstash+Elasticsearch+Kibana安装</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Filebeat+Logstash+Elasticsearch+Kibana安装</h1><div class="post-meta text-muted d-flex flex-column"><div> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Mon, Dec 3, 2018, 1:25 PM +0800" > Dec 3, 2018 <i class="unloaded">2018-12-03T13:25:00+08:00</i> </span> by <span class="author"> lisheng </span></div><div> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="2041 words">11 min</span></div></div><div class="post-content"><h2 id="filebeat安装">Filebeat安装</h2><p>Filebeat使用Go语言，无须安装java运行环境。</p><h3 id="安装filebeat">安装Filebeat</h3><p>从官网下载安装包，解压后放到你想要安装的目录就可以了</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>curl <span class="nt">-L</span> <span class="nt">-O</span> https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.5.1-linux-x86_64.tar.gz
+<span class="nb">tar </span>xzvf filebeat-6.5.1-linux-x86_64.tar.gz
+</pre></table></code></div></div><h3 id="运行">运行</h3><p>修改配置文件<code class="language-plaintext highlighter-rouge">filebeat.yml</code></p><p>启动<code class="language-plaintext highlighter-rouge">./filebeat -c filebeat.yml</code> （<em>测试学习阶段可以这样启动</em>）</p><hr /><h2 id="logstash安装">Logstash安装</h2><h3 id="前期准备">前期准备</h3><p>确保JDK版本为1.8以上</p><p>To check your Java version, run the following command:</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>java <span class="nt">-version</span>
+</pre></table></code></div></div><p>安装apt-transport-https</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="nb">sudo </span>apt-get <span class="nb">install </span>apt-transport-https
+</pre></table></code></div></div><h3 id="安装oracle-java-jdk">安装oracle Java JDK</h3><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="nb">sudo </span>apt-get <span class="nb">install </span>python-software-properties
+
+<span class="nb">sudo </span>add-apt-repository ppa:webupd8team/java
+
+<span class="nb">sudo </span>apt-get update
+
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>oracle-java8-installer
+</pre></table></code></div></div><p>查看版本</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>java <span class="nt">-version</span>
+</pre></table></code></div></div><p>运行结果：</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre>cai@xin-x790:~<span class="nv">$ </span>java <span class="nt">-version</span>
+java version <span class="s2">"1.8.0_191"</span>
+Java<span class="o">(</span>TM<span class="o">)</span> SE Runtime Environment <span class="o">(</span>build 1.8.0_191-b12<span class="o">)</span>
+Java HotSpot<span class="o">(</span>TM<span class="o">)</span> 64-Bit Server VM <span class="o">(</span>build 25.191-b12, mixed mode<span class="o">)</span>
+
+</pre></table></code></div></div><h3 id="安装logstash">安装logstash</h3><p>从官网下载安装包，解压后放到你想要安装的目录就可以了</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>wget https://artifacts.elastic.co/downloads/logstash/logstash-6.5.1.tar.gz
+<span class="nb">tar</span> <span class="nt">-zxvf</span> logstash-6.5.1.tar.gz
+</pre></table></code></div></div><h3 id="检测是否安装成功">检测是否安装成功</h3><p>测试安装是否成功，进入安装目录，运行以下命令：</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>bin/logstash <span class="nt">-e</span> <span class="s1">'input { stdin { } } output { stdout {} }'</span>
+</pre></table></code></div></div><blockquote><p>-e 参数表示执行后边的语句，标志使您能够直接从命令行指定配置。在命令行中指定配置允许您快速测试配置，而无需在迭代之间编辑文件。示例中的管道从标准输入stdin获取输入，并以结构化格式将输入移动到标准输出stdout。</p></blockquote><p>输入helloworld，运行结果如下：</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre>sl@Li:/usr/local/logstash<span class="nv">$ </span>bin/logstash <span class="nt">-e</span> <span class="s1">'input { stdin { } } output { stdout {} }'</span>
+helloworldSending Logstash logs to /usr/local/logstash/logs which is now configured via log4j2.properties
+<span class="o">[</span>2018-11-30T10:32:27,261][WARN <span class="o">][</span>logstash.config.source.multilocal] Ignoring the <span class="s1">'pipelines.yml'</span> file because modules or <span class="nb">command </span>line options are specified
+<span class="o">[</span>2018-11-30T10:32:27,273][INFO <span class="o">][</span>logstash.runner          <span class="o">]</span> Starting Logstash <span class="o">{</span><span class="s2">"logstash.version"</span><span class="o">=&gt;</span><span class="s2">"6.5.0"</span><span class="o">}</span>
+<span class="o">[</span>2018-11-30T10:32:29,257][INFO <span class="o">][</span>logstash.pipeline        <span class="o">]</span> Starting pipeline <span class="o">{</span>:pipeline_id<span class="o">=&gt;</span><span class="s2">"main"</span>, <span class="s2">"pipeline.workers"</span><span class="o">=&gt;</span>4, <span class="s2">"pipeline.batch.size"</span><span class="o">=&gt;</span>125, <span class="s2">"pipeline.batch.delay"</span><span class="o">=&gt;</span>50<span class="o">}</span>
+<span class="o">[</span>2018-11-30T10:32:29,394][INFO <span class="o">][</span>logstash.pipeline        <span class="o">]</span> Pipeline started successfully <span class="o">{</span>:pipeline_id<span class="o">=&gt;</span><span class="s2">"main"</span>, :thread<span class="o">=&gt;</span><span class="s2">"#&lt;Thread:0x5c08e158 run&gt;"</span><span class="o">}</span>
+The stdin plugin is now waiting <span class="k">for </span>input:
+<span class="o">[</span>2018-11-30T10:32:29,525][INFO <span class="o">][</span>logstash.agent           <span class="o">]</span> Pipelines running <span class="o">{</span>:count<span class="o">=&gt;</span>1, :running_pipelines<span class="o">=&gt;[</span>:main], :non_running_pipelines<span class="o">=&gt;[]}</span>
+<span class="o">[</span>2018-11-30T10:32:29,755][INFO <span class="o">][</span>logstash.agent           <span class="o">]</span> Successfully started Logstash API endpoint <span class="o">{</span>:port<span class="o">=&gt;</span>9600<span class="o">}</span>
+
+<span class="o">{</span>
+       <span class="s2">"message"</span> <span class="o">=&gt;</span> <span class="s2">"helloworld"</span>,
+      <span class="s2">"@version"</span> <span class="o">=&gt;</span> <span class="s2">"1"</span>,
+    <span class="s2">"@timestamp"</span> <span class="o">=&gt;</span> 2018-11-30T02:32:47.739Z,
+          <span class="s2">"host"</span> <span class="o">=&gt;</span> <span class="s2">"Li"</span>
+<span class="o">}</span>
+</pre></table></code></div></div><h3 id="logstash使用配置文件的方式运行">Logstash使用配置文件的方式运行</h3><p>上述，是通过命令行运行的，下边就是通过配置文件运行的一个完整的例子：</p><p>配置文件logstash.conf</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre>input <span class="o">{</span>
+        stdin <span class="o">{</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+
+output <span class="o">{</span>
+        stdout <span class="o">{</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+~    
+</pre></table></code></div></div><p>等同于上面的命令,运行结果相同：</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>bin/logstash <span class="nt">-f</span> logstash.conf
+</pre></table></code></div></div><blockquote><p>f 表示指定使用哪一个配置文件进行执行。</p></blockquote><hr /><h2 id="elasticsearch安装">Elasticsearch安装</h2><h3 id="前期准备-1">前期准备</h3><p>与logstash相同，Elasticsearch需要确保JDK版本为1.8以上</p><p>To check your Java version, run the following command:</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>java <span class="nt">-version</span>
+</pre></table></code></div></div><h3 id="安装elasticsearch">安装Elasticsearch</h3><p>获取Elasticsearch</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>curl <span class="nt">-L</span> <span class="nt">-O</span> https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.5.1.tar.gz
+</pre></table></code></div></div><p>解压</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="nb">tar</span> <span class="nt">-xvf</span> elasticsearch-6.5.1.tar.gz
+</pre></table></code></div></div><p>将目录拷贝到安装目录即完成安装。</p><h3 id="运行-1">运行</h3><p>进入elasticsearch bin目录</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="nb">cd </span>elasticsearch-6.5.1/bin
+</pre></table></code></div></div><p>运行<code class="language-plaintext highlighter-rouge">./elasticsearch</code>，如果没错的话，运行结果如下：</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+</pre><td class="rouge-code"><pre>sl@Li:/usr/local/elasticsearch/bin<span class="nv">$ </span>./elasticsearch
+<span class="o">[</span>2018-12-03T14:13:45,169][INFO <span class="o">][</span>o.e.e.NodeEnvironment    <span class="o">]</span> <span class="o">[</span>fDPpOQe] using <span class="o">[</span>1] data paths, mounts <span class="o">[[</span>/ <span class="o">(</span>/dev/sda1<span class="o">)]]</span>, net usable_space <span class="o">[</span>259.5gb], net total_space <span class="o">[</span>310.9gb], types <span class="o">[</span>ext4]
+<span class="o">[</span>2018-12-03T14:13:45,172][INFO <span class="o">][</span>o.e.e.NodeEnvironment    <span class="o">]</span> <span class="o">[</span>fDPpOQe] heap size <span class="o">[</span>990.7mb], compressed ordinary object pointers <span class="o">[</span><span class="nb">true</span><span class="o">]</span>
+<span class="o">[</span>2018-12-03T14:13:45,174][INFO <span class="o">][</span>o.e.n.Node               <span class="o">]</span> <span class="o">[</span>fDPpOQe] node name derived from node ID <span class="o">[</span>fDPpOQeySbqIdXW3AJL6fQ]<span class="p">;</span> <span class="nb">set</span> <span class="o">[</span>node.name] to override
+<span class="o">[</span>2018-12-03T14:13:45,174][INFO <span class="o">][</span>o.e.n.Node               <span class="o">]</span> <span class="o">[</span>fDPpOQe] version[6.5.1], pid[29569], build[default/tar/8c58350/2018-11-16T02:22:42.182257Z], OS[Linux/4.15.0-39-generic/amd64], JVM[Oracle Corporation/OpenJDK 64-Bit Server VM/1.8.0_191/25.191-b12]
+<span class="o">[</span>2018-12-03T14:13:45,174][INFO <span class="o">][</span>o.e.n.Node               <span class="o">]</span> <span class="o">[</span>fDPpOQe] JVM arguments <span class="o">[</span><span class="nt">-Xms1g</span>, <span class="nt">-Xmx1g</span>, <span class="nt">-XX</span>:+UseConcMarkSweepGC, <span class="nt">-XX</span>:CMSInitiatingOccupancyFraction<span class="o">=</span>75, <span class="nt">-XX</span>:+UseCMSInitiatingOccupancyOnly, <span class="nt">-XX</span>:+AlwaysPreTouch, <span class="nt">-Xss1m</span>, <span class="nt">-Djava</span>.awt.headless<span class="o">=</span><span class="nb">true</span>, <span class="nt">-Dfile</span>.encoding<span class="o">=</span>UTF-8, <span class="nt">-Djna</span>.nosys<span class="o">=</span><span class="nb">true</span>, <span class="nt">-XX</span>:-OmitStackTraceInFastThrow, <span class="nt">-Dio</span>.netty.noUnsafe<span class="o">=</span><span class="nb">true</span>, <span class="nt">-Dio</span>.netty.noKeySetOptimization<span class="o">=</span><span class="nb">true</span>, <span class="nt">-Dio</span>.netty.recycler.maxCapacityPerThread<span class="o">=</span>0, <span class="nt">-Dlog4j</span>.shutdownHookEnabled<span class="o">=</span><span class="nb">false</span>, <span class="nt">-Dlog4j2</span>.disable.jmx<span class="o">=</span><span class="nb">true</span>, <span class="nt">-Djava</span>.io.tmpdir<span class="o">=</span>/tmp/elasticsearch.ZpLFrZb5, <span class="nt">-XX</span>:+HeapDumpOnOutOfMemoryError, <span class="nt">-XX</span>:HeapDumpPath<span class="o">=</span>data, <span class="nt">-XX</span>:ErrorFile<span class="o">=</span>logs/hs_err_pid%p.log, <span class="nt">-XX</span>:+PrintGCDetails, <span class="nt">-XX</span>:+PrintGCDateStamps, <span class="nt">-XX</span>:+PrintTenuringDistribution, <span class="nt">-XX</span>:+PrintGCApplicationStoppedTime, <span class="nt">-Xloggc</span>:logs/gc.log, <span class="nt">-XX</span>:+UseGCLogFileRotation, <span class="nt">-XX</span>:NumberOfGCLogFiles<span class="o">=</span>32, <span class="nt">-XX</span>:GCLogFileSize<span class="o">=</span>64m, <span class="nt">-Des</span>.path.home<span class="o">=</span>/usr/local/elasticsearch, <span class="nt">-Des</span>.path.conf<span class="o">=</span>/usr/local/elasticsearch/config, <span class="nt">-Des</span>.distribution.flavor<span class="o">=</span>default, <span class="nt">-Des</span>.distribution.type<span class="o">=</span><span class="nb">tar</span><span class="o">]</span>
+<span class="o">[</span>2018-12-03T14:13:46,637][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>aggs-matrix-stats]
+<span class="o">[</span>2018-12-03T14:13:46,637][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>analysis-common]
+<span class="o">[</span>2018-12-03T14:13:46,637][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>ingest-common]
+<span class="o">[</span>2018-12-03T14:13:46,637][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>lang-expression]
+<span class="o">[</span>2018-12-03T14:13:46,637][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>lang-mustache]
+<span class="o">[</span>2018-12-03T14:13:46,637][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>lang-painless]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>mapper-extras]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>parent-join]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>percolator]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>rank-eval]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>reindex]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>repository-url]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>transport-netty4]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>tribe]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-ccr]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-core]
+<span class="o">[</span>2018-12-03T14:13:46,638][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-deprecation]
+<span class="o">[</span>2018-12-03T14:13:46,639][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-graph]
+<span class="o">[</span>2018-12-03T14:13:46,639][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-logstash]
+<span class="o">[</span>2018-12-03T14:13:46,639][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-ml]
+<span class="o">[</span>2018-12-03T14:13:46,639][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-monitoring]
+<span class="o">[</span>2018-12-03T14:13:46,639][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-rollup]
+<span class="o">[</span>2018-12-03T14:13:46,639][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-security]
+<span class="o">[</span>2018-12-03T14:13:46,639][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-sql]
+<span class="o">[</span>2018-12-03T14:13:46,639][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-upgrade]
+<span class="o">[</span>2018-12-03T14:13:46,639][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] loaded module <span class="o">[</span>x-pack-watcher]
+<span class="o">[</span>2018-12-03T14:13:46,640][INFO <span class="o">][</span>o.e.p.PluginsService     <span class="o">]</span> <span class="o">[</span>fDPpOQe] no plugins loaded
+<span class="o">[</span>2018-12-03T14:13:49,306][INFO <span class="o">][</span>o.e.x.s.a.s.FileRolesStore] <span class="o">[</span>fDPpOQe] parsed <span class="o">[</span>0] roles from file <span class="o">[</span>/usr/local/elasticsearch/config/roles.yml]
+<span class="o">[</span>2018-12-03T14:13:49,791][INFO <span class="o">][</span>o.e.x.m.j.p.l.CppLogMessageHandler] <span class="o">[</span>fDPpOQe] <span class="o">[</span>controller/29677] <span class="o">[</span>Main.cc@109] controller <span class="o">(</span>64 bit<span class="o">)</span>: Version 6.5.1 <span class="o">(</span>Build 1c5fe241dd9aea<span class="o">)</span> Copyright <span class="o">(</span>c<span class="o">)</span> 2018 Elasticsearch BV
+<span class="o">[</span>2018-12-03T14:13:50,249][DEBUG][o.e.a.ActionModule       <span class="o">]</span> <span class="o">[</span>fDPpOQe] Using REST wrapper from plugin org.elasticsearch.xpack.security.Security
+<span class="o">[</span>2018-12-03T14:13:50,441][INFO <span class="o">][</span>o.e.d.DiscoveryModule    <span class="o">]</span> <span class="o">[</span>fDPpOQe] using discovery <span class="nb">type</span> <span class="o">[</span>zen] and host providers <span class="o">[</span>settings]
+<span class="o">[</span>2018-12-03T14:13:51,143][INFO <span class="o">][</span>o.e.n.Node               <span class="o">]</span> <span class="o">[</span>fDPpOQe] initialized
+<span class="o">[</span>2018-12-03T14:13:51,143][INFO <span class="o">][</span>o.e.n.Node               <span class="o">]</span> <span class="o">[</span>fDPpOQe] starting ...
+<span class="o">[</span>2018-12-03T14:13:51,323][INFO <span class="o">][</span>o.e.t.TransportService   <span class="o">]</span> <span class="o">[</span>fDPpOQe] publish_address <span class="o">{</span>127.0.0.1:9300<span class="o">}</span>, bound_addresses <span class="o">{[</span>::1]:9300<span class="o">}</span>, <span class="o">{</span>127.0.0.1:9300<span class="o">}</span>
+<span class="o">[</span>2018-12-03T14:13:51,342][WARN <span class="o">][</span>o.e.b.BootstrapChecks    <span class="o">]</span> <span class="o">[</span>fDPpOQe] max virtual memory areas vm.max_map_count <span class="o">[</span>65530] is too low, increase to at least <span class="o">[</span>262144]
+<span class="o">[</span>2018-12-03T14:13:54,404][INFO <span class="o">][</span>o.e.c.s.MasterService    <span class="o">]</span> <span class="o">[</span>fDPpOQe] zen-disco-elected-as-master <span class="o">([</span>0] nodes joined<span class="o">)</span>, reason: new_master <span class="o">{</span>fDPpOQe<span class="o">}{</span>fDPpOQeySbqIdXW3AJL6fQ<span class="o">}{</span>1pXLTM5-SfOGx5EVsx1v8g<span class="o">}{</span>127.0.0.1<span class="o">}{</span>127.0.0.1:9300<span class="o">}{</span>ml.machine_memory<span class="o">=</span>9420918784, xpack.installed<span class="o">=</span><span class="nb">true</span>, ml.max_open_jobs<span class="o">=</span>20, ml.enabled<span class="o">=</span><span class="nb">true</span><span class="o">}</span>
+<span class="o">[</span>2018-12-03T14:13:54,407][INFO <span class="o">][</span>o.e.c.s.ClusterApplierService] <span class="o">[</span>fDPpOQe] new_master <span class="o">{</span>fDPpOQe<span class="o">}{</span>fDPpOQeySbqIdXW3AJL6fQ<span class="o">}{</span>1pXLTM5-SfOGx5EVsx1v8g<span class="o">}{</span>127.0.0.1<span class="o">}{</span>127.0.0.1:9300<span class="o">}{</span>ml.machine_memory<span class="o">=</span>9420918784, xpack.installed<span class="o">=</span><span class="nb">true</span>, ml.max_open_jobs<span class="o">=</span>20, ml.enabled<span class="o">=</span><span class="nb">true</span><span class="o">}</span>, reason: apply cluster state <span class="o">(</span>from master <span class="o">[</span>master <span class="o">{</span>fDPpOQe<span class="o">}{</span>fDPpOQeySbqIdXW3AJL6fQ<span class="o">}{</span>1pXLTM5-SfOGx5EVsx1v8g<span class="o">}{</span>127.0.0.1<span class="o">}{</span>127.0.0.1:9300<span class="o">}{</span>ml.machine_memory<span class="o">=</span>9420918784, xpack.installed<span class="o">=</span><span class="nb">true</span>, ml.max_open_jobs<span class="o">=</span>20, ml.enabled<span class="o">=</span><span class="nb">true</span><span class="o">}</span> committed version <span class="o">[</span>1] <span class="nb">source</span> <span class="o">[</span>zen-disco-elected-as-master <span class="o">([</span>0] nodes joined<span class="o">)]])</span>
+<span class="o">[</span>2018-12-03T14:13:54,463][INFO <span class="o">][</span>o.e.x.s.t.n.SecurityNetty4HttpServerTransport] <span class="o">[</span>fDPpOQe] publish_address <span class="o">{</span>127.0.0.1:9200<span class="o">}</span>, bound_addresses <span class="o">{[</span>::1]:9200<span class="o">}</span>, <span class="o">{</span>127.0.0.1:9200<span class="o">}</span>
+<span class="o">[</span>2018-12-03T14:13:54,475][INFO <span class="o">][</span>o.e.n.Node               <span class="o">]</span> <span class="o">[</span>fDPpOQe] started
+
+</pre></table></code></div></div><p>安装成功。</p><hr /><h2 id="kibana安装">Kibana安装</h2><h3 id="获取kibana">获取Kibana</h3><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>wget https://artifacts.elastic.co/downloads/kibana/kibana-6.5.1-linux-x86_64.tar.gz
+</pre></table></code></div></div><h3 id="直接解压到安装目录即完成安装">直接解压到安装目录即完成安装</h3><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="nb">tar</span> <span class="nt">-xzf</span> kibana-6.5.1-linux-x86_64.tar.gz
+</pre></table></code></div></div><h3 id="修改配置">修改配置</h3><p>这里只修改<code class="language-plaintext highlighter-rouge">server.host</code>为<code class="language-plaintext highlighter-rouge">0.0.0.0</code>，因为elasticsearch因为与kibana部署在同一台机子上，所以<code class="language-plaintext highlighter-rouge">elasticsearch.url</code>可以不修改配置。其他配置项使用默认值。</p><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="c"># Kibana is served by a back end server. This setting specifies the port to use.</span>
+<span class="c">#server.port: 5601</span>
+
+<span class="c"># Specifies the address to which the Kibana server will bind. IP addresses and host names are both valid values.</span>
+<span class="c"># The default is 'localhost', which usually means remote machines will not be able to connect.</span>
+<span class="c"># To allow connections from remote users, set this parameter to a non-loopback address.</span>
+<span class="c">#server.host: "localhost"</span>
+
+<span class="c"># The URL of the Elasticsearch instance to use for all your queries.</span>
+<span class="c">#elasticsearch.url: "http://localhost:9200"</span>
+</pre></table></code></div></div><h3 id="运行kibana">运行Kibana:</h3><div class="language-shell highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+</pre><td class="rouge-code"><pre>sl@Li:/usr/local/kibana/bin<span class="nv">$ </span>./kibana
+  log   <span class="o">[</span>05:36:39.933] <span class="o">[</span>info][status][plugin:kibana@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:39.969] <span class="o">[</span>info][status][plugin:elasticsearch@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:39.972] <span class="o">[</span>info][status][plugin:xpack_main@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:39.977] <span class="o">[</span>info][status][plugin:searchprofiler@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:39.980] <span class="o">[</span>info][status][plugin:ml@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.024] <span class="o">[</span>info][status][plugin:tilemap@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.025] <span class="o">[</span>info][status][plugin:watcher@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.038] <span class="o">[</span>info][status][plugin:license_management@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.041] <span class="o">[</span>info][status][plugin:index_management@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.049] <span class="o">[</span>info][status][plugin:rollup@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.157] <span class="o">[</span>info][status][plugin:timelion@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.158] <span class="o">[</span>info][status][plugin:graph@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.165] <span class="o">[</span>info][status][plugin:monitoring@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.168] <span class="o">[</span>info][status][plugin:spaces@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.175] <span class="o">[</span>warning][security] Generating a random key <span class="k">for </span>xpack.security.encryptionKey. To prevent sessions from being invalidated on restart, please <span class="nb">set </span>xpack.security.encryptionKey <span class="k">in </span>kibana.yml
+  log   <span class="o">[</span>05:36:40.178] <span class="o">[</span>warning][security] Session cookies will be transmitted over insecure connections. This is not recommended.
+  log   <span class="o">[</span>05:36:40.183] <span class="o">[</span>info][status][plugin:security@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.205] <span class="o">[</span>info][status][plugin:grokdebugger@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.208] <span class="o">[</span>info][status][plugin:dashboard_mode@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.211] <span class="o">[</span>info][status][plugin:logstash@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.225] <span class="o">[</span>info][status][plugin:beats_management@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.247] <span class="o">[</span>info][status][plugin:apm@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.436] <span class="o">[</span>info][status][plugin:canvas@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.442] <span class="o">[</span>info][status][plugin:console@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.443] <span class="o">[</span>info][status][plugin:console_extensions@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.446] <span class="o">[</span>info][status][plugin:notifications@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.477] <span class="o">[</span>info][status][plugin:infra@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.481] <span class="o">[</span>info][status][plugin:metrics@6.5.1] Status changed from uninitialized to green - Ready
+  log   <span class="o">[</span>05:36:40.492] <span class="o">[</span>info][status][plugin:elasticsearch@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.713] <span class="o">[</span>warning][reporting] Generating a random key <span class="k">for </span>xpack.reporting.encryptionKey. To prevent pending reports from failing on restart, please <span class="nb">set </span>xpack.reporting.encryptionKey <span class="k">in </span>kibana.yml
+  log   <span class="o">[</span>05:36:40.716] <span class="o">[</span>info][status][plugin:reporting@6.5.1] Status changed from uninitialized to yellow - Waiting <span class="k">for </span>Elasticsearch
+  log   <span class="o">[</span>05:36:40.850] <span class="o">[</span>info][license][xpack] Imported license information from Elasticsearch <span class="k">for </span>the <span class="o">[</span>data] cluster: mode: basic | status: active
+  log   <span class="o">[</span>05:36:40.853] <span class="o">[</span>info][status][plugin:xpack_main@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.855] <span class="o">[</span>info][status][plugin:searchprofiler@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.855] <span class="o">[</span>info][status][plugin:ml@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.856] <span class="o">[</span>info][status][plugin:tilemap@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.857] <span class="o">[</span>info][status][plugin:watcher@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.857] <span class="o">[</span>info][status][plugin:index_management@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.858] <span class="o">[</span>info][status][plugin:rollup@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.858] <span class="o">[</span>info][status][plugin:graph@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.859] <span class="o">[</span>info][status][plugin:grokdebugger@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.860] <span class="o">[</span>info][status][plugin:logstash@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.860] <span class="o">[</span>info][status][plugin:beats_management@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.860] <span class="o">[</span>info][status][plugin:reporting@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.862] <span class="o">[</span>info][kibana-monitoring][monitoring-ui] Starting monitoring stats collection
+  log   <span class="o">[</span>05:36:40.870] <span class="o">[</span>info][status][plugin:security@6.5.1] Status changed from yellow to green - Ready
+  log   <span class="o">[</span>05:36:40.923] <span class="o">[</span>info][license][xpack] Imported license information from Elasticsearch <span class="k">for </span>the <span class="o">[</span>monitoring] cluster: mode: basic | status: active
+  log   <span class="o">[</span>05:36:41.426] <span class="o">[</span>info][listening] Server running at http://0.0.0.0:5601
+  log   <span class="o">[</span>05:36:41.434] <span class="o">[</span>info][status][plugin:spaces@6.5.1] Status changed from yellow to green - Ready
+
+
+</pre></table></code></div></div><h3 id="访问kibana">访问Kibana</h3><p>可登录<code class="language-plaintext highlighter-rouge">http://localhost:5601</code>进行访问。</p><blockquote><p>参考文档： <br /> <a href="https://www.elastic.co/guide/en/beats/filebeat/6.5/filebeat-installation.html">Filebeat Reference [6.5] » Getting Started With Filebeat » Step 1: Install Filebeat</a> <br /> <a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.5/_installation.html">Elasticsearch Reference [6.5]</a></p></blockquote></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/superLish.github.io/categories/cs/'>CS</a>, <a href='/superLish.github.io/categories/elk/'>ELK</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/superLish.github.io/tags/elk/" class="post-tag no-text-decoration" >ELK</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>Recent Update</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/superLish.github.io/posts/%E6%97%A0%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E8%BF%94%E5%9B%9E%E7%AC%ACk%E5%A4%A7%E7%9A%84%E6%95%B0/">算法题：无序数组中返回第k大的数.md</a><li><a href="/superLish.github.io/posts/%E6%8E%92%E5%BA%8F/">排序</a><li><a href="/superLish.github.io/posts/%E7%BD%91%E7%BB%9C%E9%94%99%E8%AF%AF-Destination_unreachable-Host_administratively_prohibited/">网络错误:Destination_unreachable:Host_administratively_prohibited</a><li><a href="/superLish.github.io/posts/TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E5%88%86%E6%89%8B/">TCP三次握手与四次分手</a><li><a href="/superLish.github.io/posts/TCP%E7%9A%84%E5%B7%A5%E4%BD%9C%E9%80%BB%E8%BE%91/">谈谈TCP</a></ul></div><div id="access-tags"> <span>Trending Tags</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">Contents</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/superLish.github.io/posts/Filebeat%E6%A6%82%E8%BF%B0/"><div class="card-body"> <span class="timeago small" > Dec 4, 2018 <i class="unloaded">2018-12-04T13:25:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Filebeat概述</h3><div class="text-muted small"><p> 本文翻译自：Filebeat Reference [6.5] » Filebeat overview。 Filebeat是一个轻量级的日志数据收集传输工具(shipper)。Filebeat安装在用户服务器上，监测追踪用户指定的日志文件或目录，收集日志，然后将之传输到Elasticsearch或Logstash以便进行后面的索引工作。 接下来让我们看一下Filebeat是如何工作...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/Filebeat%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/"><div class="card-body"> <span class="timeago small" > Dec 5, 2018 <i class="unloaded">2018-12-05T13:25:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Filebeat工作原理</h3><div class="text-muted small"><p> 本文翻译自：Filebeat Reference [6.5] » How Filebeat works。 在本章节，你将会学到Filebeat的关键组成部分以及它们是如何组织工作的。理解这些概念将有助于你对自己的Filebeat用例进行更优的配置。 Filebeat主要由2部分构成：输入嗅探(inputs)和收集器(harvester)。这些组件组合在一起，追踪数据文件并且将至发...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/Logstash%E5%8F%82%E8%80%83%E6%8C%87%E5%8D%97-%E5%AD%98%E5%82%A8%E4%BD%A0%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E4%BA%8B%E4%BB%B6/"><div class="card-body"> <span class="timeago small" > Dec 6, 2018 <i class="unloaded">2018-12-06T13:25:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Logstash参考指南：存储你的第一个事件</h3><div class="text-muted small"><p> 本文翻译自：Logstash Reference [6.5] » Getting Started with Logstash » Stashing Your First Event。 首先，我们通过一个最简单的Logstash管道来测试Logstash是否已经安装成功。 Logstash管道有两个必需的元素：输入和输出，以及一个可选元素：过滤器。输入插件从源消耗数据，过滤器插件根...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/superLish.github.io/posts/%E5%AF%B9Rust%E6%89%80%E6%9C%89%E6%9D%83-%E5%80%9F%E7%94%A8%E5%8F%8A%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E7%90%86%E8%A7%A3/" class="btn btn-outline-primary" prompt="Older"><p>对Rust所有权、借用及生命周期的理解</p></a> <a href="/superLish.github.io/posts/Filebeat%E6%A6%82%E8%BF%B0/" class="btn btn-outline-primary" prompt="Newer"><p>Filebeat概述</p></a></div></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2021 <a href="https://github.com/superLish">lisheng</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">Trending Tags</h4><a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/superLish.github.io/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://superLish.github.io{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>

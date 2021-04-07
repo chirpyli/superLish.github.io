@@ -1,0 +1,861 @@
+<!DOCTYPE html><html lang="en-US" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="pv-cache-enabled" content="false"><meta name="generator" content="Jekyll v4.2.0" /><meta property="og:title" content="TCP重置报文段及RST常见场景分析" /><meta name="author" content="lisheng" /><meta property="og:locale" content="en_US" /><meta name="description" content="RST表示连接重置，用于关闭那些已经没有必要继续存在的连接。" /><meta property="og:description" content="RST表示连接重置，用于关闭那些已经没有必要继续存在的连接。" /><link rel="canonical" href="https://superlish.github.io/superLish.github.io/posts/TCP%E9%87%8D%E7%BD%AE%E6%8A%A5%E6%96%87%E6%AE%B5%E5%8F%8ARST%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90/" /><meta property="og:url" content="https://superlish.github.io/superLish.github.io/posts/TCP%E9%87%8D%E7%BD%AE%E6%8A%A5%E6%96%87%E6%AE%B5%E5%8F%8ARST%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90/" /><meta property="og:site_name" content="ChirpyLi" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2016-08-06T13:25:00+08:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="TCP重置报文段及RST常见场景分析" /><meta name="twitter:site" content="@twitter_username" /><meta name="twitter:creator" content="@lisheng" /><meta name="google-site-verification" content="google_meta_tag_verification" /> <script type="application/ld+json"> {"description":"RST表示连接重置，用于关闭那些已经没有必要继续存在的连接。","url":"https://superlish.github.io/superLish.github.io/posts/TCP%E9%87%8D%E7%BD%AE%E6%8A%A5%E6%96%87%E6%AE%B5%E5%8F%8ARST%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90/","headline":"TCP重置报文段及RST常见场景分析","dateModified":"2016-08-06T13:25:00+08:00","@type":"BlogPosting","datePublished":"2016-08-06T13:25:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://superlish.github.io/superLish.github.io/posts/TCP%E9%87%8D%E7%BD%AE%E6%8A%A5%E6%96%87%E6%AE%B5%E5%8F%8ARST%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90/"},"author":{"@type":"Person","name":"lisheng"},"@context":"https://schema.org"}</script><title>TCP重置报文段及RST常见场景分析 | ChirpyLi</title><link rel="shortcut icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/superLish.github.io/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/superLish.github.io/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/superLish.github.io/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/superLish.github.io/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/superLish.github.io/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/superLish.github.io/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/superLish.github.io/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/superLish.github.io/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/superLish.github.io/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/superLish.github.io/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/superLish.github.io/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/superLish.github.io/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/superLish.github.io/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/superLish.github.io/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/superLish.github.io/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/superLish.github.io/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials"><link rel="dns-prefetch" href="https://www.google-analytics.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="stylesheet" href="/superLish.github.io/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/superLish.github.io/assets/js/dist/post.min.js"></script> <script defer src="/superLish.github.io/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id="></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', ''); }); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/superLish.github.io/" alt="avatar" class="mx-auto"> <img src="https://cdn.jsdelivr.net/gh/cotes2020/chirpy-images/commons/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/superLish.github.io/">ChirpyLi</a></div><div class="site-subtitle font-italic">love yourself</div></div><ul class="w-100"><li class="nav-item"> <a href="/superLish.github.io/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/superLish.github.io/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/superLish.github.io/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/superLish.github.io/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/superLish.github.io/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/superLish" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/superLish.github.io/"> Posts </a> </span> <span>TCP重置报文段及RST常见场景分析</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>TCP重置报文段及RST常见场景分析</h1><div class="post-meta text-muted d-flex flex-column"><div> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Sat, Aug 6, 2016, 1:25 PM +0800" > Aug 6, 2016 <i class="unloaded">2016-08-06T13:25:00+08:00</i> </span> by <span class="author"> lisheng </span></div><div> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="3352 words">18 min</span></div></div><div class="post-content"><p><code class="language-plaintext highlighter-rouge">RST</code>表示连接重置，用于关闭那些已经没有必要继续存在的连接。</p><p><strong>产生<code class="language-plaintext highlighter-rouge">RST</code>的三个条件是：</strong></p><ol><li>目的地为某端口的<code class="language-plaintext highlighter-rouge">SYN</code>到达，然而在该端口上并没有正在监听的服务器；<li>TCP想取消一个已有连接；<li>TCP接收到一个根本不存在的连接上的分节。</ol><p>下面的几种场景，都会产生<code class="language-plaintext highlighter-rouge">RST</code>，以此来说明重置报文段的用途。</p><h3 id="一针对不存在端口的连接请求">一、针对不存在端口的连接请求</h3><p>客户端向服务端某端口发起连接请求<code class="language-plaintext highlighter-rouge">SYN</code>，但是目的服务端主机不存在该端口，此时向客户端回应<code class="language-plaintext highlighter-rouge">RST</code>，中断连接请求。</p><p>下面通过程序和抓包进行分析。程序源码如下：</p><div class="language-rust highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="nn">prelude</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">net</span><span class="p">::</span><span class="n">TcpStream</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nn">TcpStream</span><span class="p">::</span><span class="nf">connect</span><span class="p">(</span><span class="s">"192.168.2.229:33333"</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">n</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.write</span><span class="p">(</span><span class="o">&amp;</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">])</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"send {} bytes to remote node, waiting for end."</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+
+    <span class="k">loop</span><span class="p">{</span>
+        <span class="nn">thread</span><span class="p">::</span><span class="nf">sleep_ms</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>上面程序向目的主机<code class="language-plaintext highlighter-rouge">192.168.2.229</code>发起TCP连接，而目的主机并没有启动端口为<code class="language-plaintext highlighter-rouge">33333</code>的监听服务。所以当本地主机向目的主机发起TCP连接后，会收到来自目的主机的<code class="language-plaintext highlighter-rouge">RST</code>，并断开连接。（当然也不是所有的都会回复<code class="language-plaintext highlighter-rouge">RST</code>，有的主机可能不会进行回复）。抓包如下：</p><p>本地主机向目的主机发送TCP连接<code class="language-plaintext highlighter-rouge">SYN</code>：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/superLish.github.io/assets/img/network/tcp_syn.png" alt="在这里插入图片描述" /></p><p>目的主机向本地主机回复<code class="language-plaintext highlighter-rouge">ACK、RST</code>：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/superLish.github.io/assets/img/network/tcp_syn_rst.png" alt="在这里插入图片描述" /></p><h3 id="二终止一条连接">二、终止一条连接</h3><p>终止一条连接的正常方法是由通信一方发送一个<code class="language-plaintext highlighter-rouge">FIN</code>。这种方法也被称为有序释放。因为<code class="language-plaintext highlighter-rouge">FIN</code>是在之前所有排队数据都已发送后才被发送出去，通常不会出现丢失数据的情况。然而在任何时刻，我们都可以通过发送一个重置报文段<code class="language-plaintext highlighter-rouge">RST</code>替代<code class="language-plaintext highlighter-rouge">FIN</code>来终止一条连接。这种方式也被称为终止释放。</p><p>终止一条连接可以为应用程序提供两大特性：（1）任何排队的数据都将被抛弃，一个重置报文段会被立即发送出去；（2）重置报文段的接收方会说明通信的另一端采用了终止的方式而不是一次正常关闭。API必须提供一种实现上述终止行为的方式来取代正常的关闭操作。</p><p>套接字API可通过套接字选项<code class="language-plaintext highlighter-rouge">SO_LINGER</code>的数值设置为<code class="language-plaintext highlighter-rouge">0</code>来实现上述功能。</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="cm">/* Structure used to manipulate the SO_LINGER option.  */</span>
+<span class="k">struct</span> <span class="nc">linger</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">l_onoff</span><span class="p">;</span>		<span class="cm">/* Nonzero to linger on close.  */</span>
+    <span class="kt">int</span> <span class="n">l_linger</span><span class="p">;</span>		<span class="cm">/* Time to linger.  */</span>
+  <span class="p">};</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">SO_LINGER</code>的不同值的含义如下：</p><ol><li><code class="language-plaintext highlighter-rouge">l_onoff</code>为<code class="language-plaintext highlighter-rouge">0</code>，<code class="language-plaintext highlighter-rouge">l_linger</code>的值被忽略，内核缺省情况，<code class="language-plaintext highlighter-rouge">close()</code>调用会立即返回给调用者，TCP模块负责尝试发送残留的缓存区数据。<li><code class="language-plaintext highlighter-rouge">l_onoff</code>为非零值，<code class="language-plaintext highlighter-rouge">l_linger</code>为<code class="language-plaintext highlighter-rouge">0</code>，则连接立即终止，TCP将丢弃残留在发送缓冲区中的数据并发送<code class="language-plaintext highlighter-rouge">RST</code>给对方，而不是发送<code class="language-plaintext highlighter-rouge">FIN</code>，这样避免了<code class="language-plaintext highlighter-rouge">TIME_WAIT</code>状态，对方<code class="language-plaintext highlighter-rouge">read（）</code>时将收到<code class="language-plaintext highlighter-rouge">Connection reset by peer</code>的错误。<li><code class="language-plaintext highlighter-rouge">l_onoff</code>为非零值，<code class="language-plaintext highlighter-rouge">l_linger</code>大于零：如果<code class="language-plaintext highlighter-rouge">l_linger</code>时间范围，TCP模块成功发送完残留的缓冲区数据，则正常关闭，如果超时，则向对方发送<code class="language-plaintext highlighter-rouge">RST</code>，丢弃残留在发送缓冲区的数据。</ol><p>客户端代码间附录代码1，服务端代码如下：</p><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+</pre><td class="rouge-code"><pre><span class="cm">/* echo server with poll */</span>
+<span class="cp">#include &lt;poll.h&gt;
+#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+#include&lt;arpa/inet.h&gt;
+#include&lt;netinet/in.h&gt;
+#include&lt;sys/socket.h&gt;
+#include&lt;sys/types.h&gt;
+#include&lt;unistd.h&gt;
+#include&lt;string.h&gt;
+#include&lt;fcntl.h&gt;
+#include&lt;errno.h&gt;
+#include&lt;pthread.h&gt;
+</span>
+<span class="cp">#define OPEN_MAX 1024
+#define LISTEN_PORT 33333
+#define MAX_BUF 1024
+</span>
+<span class="kt">int</span> <span class="nf">set_linger</span><span class="p">(</span><span class="kt">int</span> <span class="n">sock</span><span class="p">,</span> <span class="kt">int</span> <span class="n">l_onoff</span><span class="p">,</span> <span class="kt">int</span> <span class="n">l_linger</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">handle_conn</span><span class="p">(</span><span class="k">struct</span> <span class="nc">pollfd</span> <span class="o">*</span><span class="n">nfds</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">buf</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">run</span><span class="p">();</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">_argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">_argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="n">run</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">run</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// bind socket</span>
+    <span class="kt">char</span> <span class="n">str</span><span class="p">[</span><span class="n">INET_ADDRSTRLEN</span><span class="p">];</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">seraddr</span><span class="p">,</span> <span class="n">cliaddr</span><span class="p">;</span>
+    <span class="n">socklen_t</span> <span class="n">cliaddr_len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">listen_sock</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">seraddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">seraddr</span><span class="p">));</span>
+    <span class="n">seraddr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">seraddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">INADDR_ANY</span><span class="p">);</span>
+    <span class="n">seraddr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">LISTEN_PORT</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">opt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">setsockopt</span><span class="p">(</span><span class="n">listen_sock</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">opt</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">opt</span><span class="p">));</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">bind</span><span class="p">(</span><span class="n">listen_sock</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">seraddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">seraddr</span><span class="p">)))</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"bind server addr failure."</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">listen</span><span class="p">(</span><span class="n">listen_sock</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">ret</span><span class="p">,</span> <span class="n">i</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">pollfd</span> <span class="n">nfds</span><span class="p">[</span><span class="n">OPEN_MAX</span><span class="p">];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">OPEN_MAX</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+        <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">nfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="n">listen_sock</span><span class="p">;</span>
+    <span class="n">nfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span>
+
+    <span class="kt">char</span><span class="o">*</span> <span class="n">buf</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">MAX_BUF</span><span class="p">);</span>   
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">poll</span><span class="p">(</span><span class="n">nfds</span><span class="p">,</span> <span class="n">OPEN_MAX</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">ret</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">perror</span><span class="p">(</span><span class="s">"poll failure."</span><span class="p">);</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="cm">/* An event on one of the fds has occurred. */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">revents</span> <span class="o">&amp;</span> <span class="n">POLLIN</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">conn_sock</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">listen_sock</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cliaddr_len</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">conn_sock</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">perror</span><span class="p">(</span><span class="s">"accept failure."</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"accept from %s:%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">inet_ntop</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">,</span> <span class="n">str</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">str</span><span class="p">)),</span> <span class="n">ntohs</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">.</span><span class="n">sin_port</span><span class="p">));</span>
+
+            <span class="n">set_linger</span><span class="p">(</span><span class="n">conn_sock</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>    <span class="c1">//设置SO_LINGER option值为0</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">k</span><span class="o">&lt;</span><span class="n">OPEN_MAX</span><span class="p">;</span><span class="o">++</span><span class="n">k</span><span class="p">){</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">fd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+                    <span class="n">nfds</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="n">conn_sock</span><span class="p">;</span>
+                    <span class="n">nfds</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="n">OPEN_MAX</span><span class="o">-</span><span class="mi">1</span><span class="p">){</span>
+                    <span class="n">perror</span><span class="p">(</span><span class="s">"too many clients, nfds size is not enough."</span><span class="p">);</span>
+                    <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="n">handle_conn</span><span class="p">(</span><span class="n">nfds</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">close</span><span class="p">(</span><span class="n">listen_sock</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">handle_conn</span><span class="p">(</span><span class="k">struct</span> <span class="nc">pollfd</span> <span class="o">*</span><span class="n">nfds</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">buf</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">OPEN_MAX</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">revents</span> <span class="o">&amp;</span> <span class="n">POLLIN</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">bzero</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">MAX_BUF</span><span class="p">);</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">MAX_BUF</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">==</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">close</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">);</span>
+                <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="p">}</span> 
+            <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"recv from client: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+                <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span>
+
+                <span class="n">close</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">);</span>  <span class="c1">//接收数据后就主动关闭连接，用于RST测试          </span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="n">perror</span><span class="p">(</span><span class="s">"read failure."</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">revents</span> <span class="o">&amp;</span> <span class="n">POLLOUT</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"write data to client: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+            <span class="n">write</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">));</span>
+            <span class="n">bzero</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">MAX_BUF</span><span class="p">);</span>          
+
+            <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">set_linger</span><span class="p">(</span><span class="kt">int</span> <span class="n">sock</span><span class="p">,</span> <span class="kt">int</span> <span class="n">l_onoff</span><span class="p">,</span> <span class="kt">int</span> <span class="n">l_linger</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="nc">linger</span> <span class="n">so_linger</span><span class="p">;</span>
+    <span class="n">so_linger</span><span class="p">.</span><span class="n">l_onoff</span> <span class="o">=</span> <span class="n">l_onoff</span><span class="p">;</span>
+    <span class="n">so_linger</span><span class="p">.</span><span class="n">l_linger</span> <span class="o">=</span> <span class="n">l_linger</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="n">setsockopt</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_LINGER</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">so_linger</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">so_linger</span><span class="p">));</span>
+
+    <span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>抓包结果如下：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/superLish.github.io/assets/img/network/RST_linger_1_0.png" alt="在这里插入图片描述" /></p><p>先3次握手，后客户端向服务度发送了5个字节数据，服务端在接收完5字节数据向客户端<code class="language-plaintext highlighter-rouge">ACK</code>后，表示想中断连接，此时因设置了<code class="language-plaintext highlighter-rouge">SO_LINGER</code>选项值为<code class="language-plaintext highlighter-rouge">0</code>，<code class="language-plaintext highlighter-rouge">close()</code>时，直接向对方发送<code class="language-plaintext highlighter-rouge">RST</code>而不是正常的发送<code class="language-plaintext highlighter-rouge">FIN</code>，连接立即终止，并且不会有<code class="language-plaintext highlighter-rouge">TIME_WAIT</code>状态，TCP将丢弃残留在发送缓冲区中的数据，对方<code class="language-plaintext highlighter-rouge">read（）</code>时将收到<code class="language-plaintext highlighter-rouge">Connection reset by peer</code>的错误。</p><h4 id="三半开连接">三、半开连接</h4><p>如果在未告知另一端的情况下通信的一端关闭或终止连接，那么就认为该条TCP连接处于半开状态。</p><p>举个例子，服务器主机被切断电源后重启（切断电源前可将网线断开，重启后再接上），此时留个客户端的是一个半开的连接。当客户端再次向服务端发送数据时，服务端对此连接一无所知，会回复一个重置报文段<code class="language-plaintext highlighter-rouge">RST</code>后，中断连接。</p><p>再或者如果程序开启了TCP保活机制，则当监测到对方主机不可达时，发送<code class="language-plaintext highlighter-rouge">RST</code>中断连接。详细可参考<a href="https://blog.csdn.net/s_lisheng/article/details/87288445">TCP保活机制</a>。</p><p>TCP连接如果长时间没有数据收发，会使TCP发送保活探测报文，以维持连接或者探测连接是否存在。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/superLish.github.io/assets/img/network/tcp_keepalive_abnormal.png" alt="在这里插入图片描述" /></p><p>可以看到如果认为连接不存在了，就会发送<code class="language-plaintext highlighter-rouge">RST</code>中断连接。</p><h4 id="四提前关闭连接">四、提前关闭连接</h4><p>TCP应用程序接收数据是从操作系统中接收的TCP数据，如果数据到达了操作系统但是我应用数据不想继续接收数据了，此时<code class="language-plaintext highlighter-rouge">RST</code>中断连接。</p><p>服务端代码：</p><div class="language-c highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+</pre><td class="rouge-code"><pre><span class="cm">/* echo server with poll */</span>
+<span class="cp">#include &lt;poll.h&gt;
+#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+#include&lt;arpa/inet.h&gt;
+#include&lt;netinet/in.h&gt;
+#include&lt;sys/socket.h&gt;
+#include&lt;sys/types.h&gt;
+#include&lt;unistd.h&gt;
+#include&lt;string.h&gt;
+#include&lt;fcntl.h&gt;
+#include&lt;errno.h&gt;
+#include&lt;pthread.h&gt;
+</span>
+<span class="cp">#define OPEN_MAX 1024
+#define LISTEN_PORT 33333
+#define MAX_BUF 1024
+</span>
+<span class="cp">#define RST_TEST 1
+</span>
+<span class="kt">int</span> <span class="nf">handle_conn</span><span class="p">(</span><span class="k">struct</span> <span class="n">pollfd</span> <span class="o">*</span><span class="n">nfds</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">buf</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">run</span><span class="p">();</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">_argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">_argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="n">run</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">run</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// bind socket</span>
+    <span class="kt">char</span> <span class="n">str</span><span class="p">[</span><span class="n">INET_ADDRSTRLEN</span><span class="p">];</span>
+    <span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">seraddr</span><span class="p">,</span> <span class="n">cliaddr</span><span class="p">;</span>
+    <span class="n">socklen_t</span> <span class="n">cliaddr_len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">listen_sock</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">seraddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">seraddr</span><span class="p">));</span>
+    <span class="n">seraddr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">seraddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">INADDR_ANY</span><span class="p">);</span>
+    <span class="n">seraddr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">LISTEN_PORT</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">opt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">setsockopt</span><span class="p">(</span><span class="n">listen_sock</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">opt</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">opt</span><span class="p">));</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">bind</span><span class="p">(</span><span class="n">listen_sock</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">seraddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">seraddr</span><span class="p">)))</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"bind server addr failure."</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">listen</span><span class="p">(</span><span class="n">listen_sock</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">ret</span><span class="p">,</span> <span class="n">i</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">pollfd</span> <span class="n">nfds</span><span class="p">[</span><span class="n">OPEN_MAX</span><span class="p">];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">OPEN_MAX</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+        <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">nfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="n">listen_sock</span><span class="p">;</span>
+    <span class="n">nfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span>
+
+    <span class="kt">char</span><span class="o">*</span> <span class="n">buf</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">MAX_BUF</span><span class="p">);</span>   
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">poll</span><span class="p">(</span><span class="n">nfds</span><span class="p">,</span> <span class="n">OPEN_MAX</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">ret</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">perror</span><span class="p">(</span><span class="s">"poll failure."</span><span class="p">);</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="cm">/* An event on one of the fds has occurred. */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">revents</span> <span class="o">&amp;</span> <span class="n">POLLIN</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">conn_sock</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">listen_sock</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cliaddr_len</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">conn_sock</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">perror</span><span class="p">(</span><span class="s">"accept failure."</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"accept from %s:%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">inet_ntop</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">,</span> <span class="n">str</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">str</span><span class="p">)),</span> <span class="n">ntohs</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">.</span><span class="n">sin_port</span><span class="p">));</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">k</span><span class="o">&lt;</span><span class="n">OPEN_MAX</span><span class="p">;</span><span class="o">++</span><span class="n">k</span><span class="p">){</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">fd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+                    <span class="n">nfds</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="n">conn_sock</span><span class="p">;</span>
+                    <span class="n">nfds</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="n">OPEN_MAX</span><span class="o">-</span><span class="mi">1</span><span class="p">){</span>
+                    <span class="n">perror</span><span class="p">(</span><span class="s">"too many clients, nfds size is not enough."</span><span class="p">);</span>
+                    <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="n">handle_conn</span><span class="p">(</span><span class="n">nfds</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">close</span><span class="p">(</span><span class="n">listen_sock</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">handle_conn</span><span class="p">(</span><span class="k">struct</span> <span class="n">pollfd</span> <span class="o">*</span><span class="n">nfds</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">buf</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">OPEN_MAX</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">revents</span> <span class="o">&amp;</span> <span class="n">POLLIN</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">bzero</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">MAX_BUF</span><span class="p">);</span>
+<span class="cp">#if RST_TEST == 0
+</span>            <span class="n">n</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">MAX_BUF</span><span class="p">);</span>
+<span class="cp">#else
+</span>            <span class="n">n</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>      <span class="c1">//只接收部分数据就主动关闭连接，用于RST测试         </span>
+<span class="cp">#endif
+</span>            <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">==</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">close</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">);</span>
+                <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="p">}</span> 
+            <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"recv from client: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+                <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLOUT</span><span class="p">;</span>
+<span class="cp">#if RST_TEST != 0  
+</span>                <span class="n">close</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">);</span>  <span class="c1">//只接收部分数据就主动关闭连接，用于RST测试</span>
+<span class="cp">#endif            
+</span>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="n">perror</span><span class="p">(</span><span class="s">"read failure."</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">revents</span> <span class="o">&amp;</span> <span class="n">POLLOUT</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"write data to client: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+            <span class="n">write</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">));</span>
+            <span class="n">bzero</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">MAX_BUF</span><span class="p">);</span>          
+
+            <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>客户端发起连接后发送超过5字节的数据后，因为服务端只接收5个字节数据后不再接收数据（此时服务端操作系统已经收到10个字节数据，但上层<code class="language-plaintext highlighter-rouge">read</code>系统调用只接收5个字节），服务端向客户端发送<code class="language-plaintext highlighter-rouge">RST</code>中断连接。抓包结果如下：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/superLish.github.io/assets/img/network/RST.png" alt="在这里插入图片描述" /></p><p>先3次握手，握手后客户端发送了10字节长度的数据，服务端在回应客户端<code class="language-plaintext highlighter-rouge">ACK</code>接收到数据后，发送<code class="language-plaintext highlighter-rouge">RST</code>中断连接。</p><h4 id="五在一个已关闭的tcp连接上收到数据">五、在一个已关闭的TCP连接上收到数据</h4><p>如果一个已关闭的TCP连接又收到数据，显然是异常的，此时应<code class="language-plaintext highlighter-rouge">RST</code>中断连接。</p><p>服务端其他代码与上个代码相同，下面函数替换一下</p><div class="language-c highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+</pre><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">handle_conn</span><span class="p">(</span><span class="k">struct</span> <span class="n">pollfd</span> <span class="o">*</span><span class="n">nfds</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">buf</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">OPEN_MAX</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">revents</span> <span class="o">&amp;</span> <span class="n">POLLIN</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">bzero</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">MAX_BUF</span><span class="p">);</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">MAX_BUF</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">==</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">close</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">);</span>
+                <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="p">}</span> 
+            <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"recv from client: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+                <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLOUT</span><span class="p">;</span>
+
+                <span class="n">close</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">);</span>  <span class="c1">//接收数据后就主动关闭连接，用于RST测试          </span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="n">perror</span><span class="p">(</span><span class="s">"read failure."</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">revents</span> <span class="o">&amp;</span> <span class="n">POLLOUT</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"write data to client: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+            <span class="n">write</span><span class="p">(</span><span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">));</span>
+            <span class="n">bzero</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">MAX_BUF</span><span class="p">);</span>          
+
+            <span class="n">nfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>客户端代码与上个相同，只有下面函数不同，替换一下即可：</p><div class="language-c highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">client_handle</span><span class="p">(</span><span class="kt">int</span> <span class="n">sock</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="n">sendbuf</span><span class="p">[</span><span class="n">MAXLEN</span><span class="p">],</span> <span class="n">recvbuf</span><span class="p">[</span><span class="n">MAXLEN</span><span class="p">];</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="n">sendbuf</span><span class="p">,</span> <span class="n">MAXLEN</span><span class="p">);</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="n">recvbuf</span><span class="p">,</span> <span class="n">MAXLEN</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">NULL</span> <span class="o">==</span> <span class="n">fgets</span><span class="p">(</span><span class="n">sendbuf</span><span class="p">,</span> <span class="n">MAXLEN</span><span class="p">,</span> <span class="n">stdin</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">// 按`#`号退出</span>
+        <span class="k">if</span> <span class="p">(</span><span class="sc">'#'</span> <span class="o">==</span> <span class="n">sendbuf</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">struct</span> <span class="n">timeval</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+        <span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">start</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">sendbuf</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">sendbuf</span><span class="p">));</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">sendbuf</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">sendbuf</span><span class="p">));</span>		<span class="c1">//这里是测试RST用的代码</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">);</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">recvbuf</span><span class="p">,</span> <span class="n">MAXLEN</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">==</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">STDOUT_FILENO</span><span class="p">,</span> <span class="n">recvbuf</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+        <span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">end</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"time diff=%ld microseconds</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">((</span><span class="n">end</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">*</span> <span class="mi">1000000</span> <span class="o">+</span> <span class="n">end</span><span class="p">.</span><span class="n">tv_usec</span><span class="p">)</span><span class="o">-</span> <span class="p">(</span><span class="n">start</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">*</span> <span class="mi">1000000</span> <span class="o">+</span> <span class="n">start</span><span class="p">.</span><span class="n">tv_usec</span><span class="p">)));</span>
+    <span class="p">}</span>
+
+    <span class="n">close</span><span class="p">(</span><span class="n">sock</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>抓包如下： <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/superLish.github.io/assets/img/network/RST2.png" alt="在这里插入图片描述" /> 先3次握手；后客户端向服务端发送了5字节数据，服务端接收到5字节数据回复<code class="language-plaintext highlighter-rouge">ACK</code>；之后向客户端发送<code class="language-plaintext highlighter-rouge">FIN</code>，关闭连接，但此时客户端还有数据要发送，没有向服务端发起<code class="language-plaintext highlighter-rouge">FIN</code>，此时只进行了2次挥手；之后客户端又向服务端发送了5个字节数据，但此时服务端该连接已经调用<code class="language-plaintext highlighter-rouge">close()</code>关闭，此时再次收到该连接的数据属于异常，回复<code class="language-plaintext highlighter-rouge">RST</code>中断连接。</p><h4 id="六附录">六、附录</h4><p>测试用的客户端代码</p><div class="language-c highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;unistd.h&gt;
+#include&lt;sys/types.h&gt;
+#include&lt;sys/socket.h&gt;
+#include&lt;netinet/in.h&gt;
+#include&lt;arpa/inet.h&gt;
+#include&lt;netdb.h&gt;
+#include &lt;time.h&gt;
+#include &lt;sys/time.h&gt;
+#include&lt;stdlib.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+</span>
+<span class="cp">#define SERVER_PORT 33333
+#define MAXLEN 65535
+</span>
+<span class="kt">void</span> <span class="nf">client_handle</span><span class="p">(</span><span class="kt">int</span> <span class="n">sock</span><span class="p">);</span>
+
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">argc</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"input args %d: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">seraddr</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">server_port</span> <span class="o">=</span> <span class="n">SERVER_PORT</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="mi">2</span> <span class="o">==</span> <span class="n">argc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">server_port</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+
+    <span class="kt">int</span> <span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">seraddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">seraddr</span><span class="p">));</span>
+    <span class="n">seraddr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">inet_pton</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="s">"127.0.0.1"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">seraddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">);</span>
+    <span class="n">seraddr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">server_port</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">connect</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">seraddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">seraddr</span><span class="p">)))</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"connect failure"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">client_handle</span><span class="p">(</span><span class="n">sock</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">client_handle</span><span class="p">(</span><span class="kt">int</span> <span class="n">sock</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="n">sendbuf</span><span class="p">[</span><span class="n">MAXLEN</span><span class="p">],</span> <span class="n">recvbuf</span><span class="p">[</span><span class="n">MAXLEN</span><span class="p">];</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="n">sendbuf</span><span class="p">,</span> <span class="n">MAXLEN</span><span class="p">);</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="n">recvbuf</span><span class="p">,</span> <span class="n">MAXLEN</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">NULL</span> <span class="o">==</span> <span class="n">fgets</span><span class="p">(</span><span class="n">sendbuf</span><span class="p">,</span> <span class="n">MAXLEN</span><span class="p">,</span> <span class="n">stdin</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">// 按`#`号退出</span>
+        <span class="k">if</span> <span class="p">(</span><span class="sc">'#'</span> <span class="o">==</span> <span class="n">sendbuf</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">struct</span> <span class="n">timeval</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+        <span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">start</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">sendbuf</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">sendbuf</span><span class="p">));</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">recvbuf</span><span class="p">,</span> <span class="n">MAXLEN</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">perror</span><span class="p">(</span><span class="s">"read failure."</span><span class="p">);</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">==</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">STDOUT_FILENO</span><span class="p">,</span> <span class="n">recvbuf</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+        <span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">end</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"time diff=%ld microseconds</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">((</span><span class="n">end</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">*</span> <span class="mi">1000000</span> <span class="o">+</span> <span class="n">end</span><span class="p">.</span><span class="n">tv_usec</span><span class="p">)</span><span class="o">-</span> <span class="p">(</span><span class="n">start</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">*</span> <span class="mi">1000000</span> <span class="o">+</span> <span class="n">start</span><span class="p">.</span><span class="n">tv_usec</span><span class="p">)));</span>
+    <span class="p">}</span>
+
+    <span class="n">close</span><span class="p">(</span><span class="n">sock</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>参考文档： <a href="https://blog.51cto.com/xwandrew/2046615">Linux Socket SO_LINGER选项</a> <a href="https://segmentfault.com/a/1190000012345710">Socket之so_linger与rst</a></p></blockquote></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/superLish.github.io/categories/cs/'>CS</a>, <a href='/superLish.github.io/categories/network/'>Network</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/superLish.github.io/tags/tcp-ip/" class="post-tag no-text-decoration" >TCP/IP</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>Recent Update</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/superLish.github.io/posts/%E6%97%A0%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E8%BF%94%E5%9B%9E%E7%AC%ACk%E5%A4%A7%E7%9A%84%E6%95%B0/">算法题：无序数组中返回第k大的数.md</a><li><a href="/superLish.github.io/posts/%E6%8E%92%E5%BA%8F/">排序</a><li><a href="/superLish.github.io/posts/%E7%BD%91%E7%BB%9C%E9%94%99%E8%AF%AF-Destination_unreachable-Host_administratively_prohibited/">网络错误:Destination_unreachable:Host_administratively_prohibited</a><li><a href="/superLish.github.io/posts/TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E5%88%86%E6%89%8B/">TCP三次握手与四次分手</a><li><a href="/superLish.github.io/posts/TCP%E7%9A%84%E5%B7%A5%E4%BD%9C%E9%80%BB%E8%BE%91/">谈谈TCP</a></ul></div><div id="access-tags"> <span>Trending Tags</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">Contents</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/superLish.github.io/posts/127.0.0.1%E4%B8%8E0.0.0.0%E5%8F%8A%E6%9C%AC%E6%9C%BAIP%E5%9C%B0%E5%9D%80%E7%9A%84%E5%8C%BA%E5%88%AB/"><div class="card-body"> <span class="timeago small" > Jul 6, 2015 <i class="unloaded">2015-07-06T13:25:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>127.0.0.1与0.0.0.0及本机IP地址的区别</h3><div class="text-muted small"><p> 127.0.0.1，特殊的环回地址，大多数系统把此IP地址分配给换回接口分配给这个接口，并命名为localhost(主机名)，一般用来对运行在同一台主机上的程序通过TCP/IP进行通信。 0.0.0.0，特殊的源地址，表示的是网络上的所有主机，一般在写服务端程序绑定监听地址时常用此地址。 其实，127.x.x.x和0.0.0.0都是属于特殊情况的IP地址，可参考下表： 在这个...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/ICMP%E5%8D%8F%E8%AE%AE/"><div class="card-body"> <span class="timeago small" > Aug 6, 2015 <i class="unloaded">2015-08-06T13:25:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>ICMP协议</h3><div class="text-muted small"><p> ICMP协议 在互联网传输过程中，IP数据报难免会出现差错，通常出现差错，处理方法就是丢弃，但是一般，出现差错后，会发送ICMP报文给主机，告诉它一些差错信息，以及对当前的网络状态进行一个探寻。可以说，ICMP的主要目的是用于在TCP/IP网络中发送出错和控制消息。 ICMP报文封装如下： 主要ICMP报文 ICMP报文主要分三类，即差错报告报文、控制报文、请求/应答报文，如下图所示...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E5%88%86%E6%89%8B/"><div class="card-body"> <span class="timeago small" > Aug 6, 2016 <i class="unloaded">2016-08-06T13:25:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>TCP三次握手与四次分手</h3><div class="text-muted small"><p> TCP首部 TCP工作在传输层，提供应用程序到应用程序之间的可靠传输。学习TCP协议，首先从TCP协议头部开始： 0 1 2 3 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 +-+...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/superLish.github.io/posts/TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E5%88%86%E6%89%8B/" class="btn btn-outline-primary" prompt="Older"><p>TCP三次握手与四次分手</p></a> <a href="/superLish.github.io/posts/%E5%A0%86%E6%8E%92%E5%BA%8F/" class="btn btn-outline-primary" prompt="Newer"><p>堆排序</p></a></div></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('.post-content img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2021 <a href="https://github.com/superLish">lisheng</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">Trending Tags</h4><a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/superLish.github.io/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://superLish.github.io{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>

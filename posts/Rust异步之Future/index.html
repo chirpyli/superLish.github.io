@@ -1,0 +1,365 @@
+<!DOCTYPE html><html lang="en-US" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="pv-cache-enabled" content="false"><meta name="generator" content="Jekyll v4.2.0" /><meta property="og:title" content="Rust异步之Future" /><meta name="author" content="lisheng" /><meta property="og:locale" content="en_US" /><meta name="description" content="对异步的学习，我们先从Future开始，学习异步的实现原理。等理解了异步是怎么实现的后，再学习Rust异步编程涉及的2个库（futures、tokio）的时候就容易理解多了。" /><meta property="og:description" content="对异步的学习，我们先从Future开始，学习异步的实现原理。等理解了异步是怎么实现的后，再学习Rust异步编程涉及的2个库（futures、tokio）的时候就容易理解多了。" /><link rel="canonical" href="https://superlish.github.io/superLish.github.io/posts/Rust%E5%BC%82%E6%AD%A5%E4%B9%8BFuture/" /><meta property="og:url" content="https://superlish.github.io/superLish.github.io/posts/Rust%E5%BC%82%E6%AD%A5%E4%B9%8BFuture/" /><meta property="og:site_name" content="ChirpyLi" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2020-05-09T20:55:00+08:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Rust异步之Future" /><meta name="twitter:site" content="@twitter_username" /><meta name="twitter:creator" content="@lisheng" /><meta name="google-site-verification" content="google_meta_tag_verification" /> <script type="application/ld+json"> {"description":"对异步的学习，我们先从Future开始，学习异步的实现原理。等理解了异步是怎么实现的后，再学习Rust异步编程涉及的2个库（futures、tokio）的时候就容易理解多了。","url":"https://superlish.github.io/superLish.github.io/posts/Rust%E5%BC%82%E6%AD%A5%E4%B9%8BFuture/","headline":"Rust异步之Future","dateModified":"2020-05-09T20:55:00+08:00","@type":"BlogPosting","datePublished":"2020-05-09T20:55:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://superlish.github.io/superLish.github.io/posts/Rust%E5%BC%82%E6%AD%A5%E4%B9%8BFuture/"},"author":{"@type":"Person","name":"lisheng"},"@context":"https://schema.org"}</script><title>Rust异步之Future | ChirpyLi</title><link rel="shortcut icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/superLish.github.io/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/superLish.github.io/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/superLish.github.io/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/superLish.github.io/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/superLish.github.io/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/superLish.github.io/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/superLish.github.io/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/superLish.github.io/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/superLish.github.io/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/superLish.github.io/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/superLish.github.io/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/superLish.github.io/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/superLish.github.io/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/superLish.github.io/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/superLish.github.io/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/superLish.github.io/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials"><link rel="dns-prefetch" href="https://www.google-analytics.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="stylesheet" href="/superLish.github.io/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/superLish.github.io/assets/js/dist/post.min.js"></script> <script defer src="/superLish.github.io/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id="></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', ''); }); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/superLish.github.io/" alt="avatar" class="mx-auto"> <img src="https://cdn.jsdelivr.net/gh/cotes2020/chirpy-images/commons/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/superLish.github.io/">ChirpyLi</a></div><div class="site-subtitle font-italic">love yourself</div></div><ul class="w-100"><li class="nav-item"> <a href="/superLish.github.io/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/superLish.github.io/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/superLish.github.io/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/superLish.github.io/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/superLish.github.io/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/superLish" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/superLish.github.io/"> Posts </a> </span> <span>Rust异步之Future</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Rust异步之Future</h1><div class="post-meta text-muted d-flex flex-column"><div> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Sat, May 9, 2020, 8:55 PM +0800" > May 9, 2020 <i class="unloaded">2020-05-09T20:55:00+08:00</i> </span> by <span class="author"> lisheng </span></div><div> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="2001 words">11 min</span></div></div><div class="post-content"><p>对异步的学习，我们先从<code class="language-plaintext highlighter-rouge">Future</code>开始，学习异步的实现原理。等理解了异步是怎么实现的后，再学习Rust异步编程涉及的2个库（futures、tokio）的时候就容易理解多了。</p><h3 id="future">Future</h3><p>rust中<code class="language-plaintext highlighter-rouge">Future</code>的定义如下，一个<code class="language-plaintext highlighter-rouge">Future</code>可以理解为一段供将来调度执行的代码。我们为什么需要异步呢，异步相比同步高效在哪里呢？就是异步环境下，当前调用就绪时则执行，没有就绪时则不等待任务就绪，而是返回一个<code class="language-plaintext highlighter-rouge">Future</code>，等待将来任务就绪时再调度执行。当然，这里返回<code class="language-plaintext highlighter-rouge">Future</code>时关键的是要声明事件什么时候就绪，就绪后怎么唤醒这个任务到调度器去调度执行。</p><div class="language-rust highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="nd">#[must_use</span> <span class="nd">=</span> <span class="s">"futures do nothing unless you `.await` or poll them"</span><span class="nd">]</span>
+<span class="nd">#[lang</span> <span class="nd">=</span> <span class="s">"future_trait"</span><span class="nd">]</span>
+<span class="k">pub</span> <span class="k">trait</span> <span class="n">Future</span> <span class="p">{</span>  <span class="c">// A future represents an asynchronous computation.</span>
+    <span class="k">type</span> <span class="n">Output</span><span class="p">;</span>
+    <span class="cm">/* The core method of future, poll, attempts to resolve the future into a final value. This method does not block if the value is not ready. Instead, the current task is scheduled to be woken up when it's possible to make further progress by polling again. */</span> 
+    <span class="k">fn</span> <span class="nf">poll</span><span class="p">(</span><span class="k">self</span><span class="p">:</span> <span class="n">Pin</span><span class="o">&lt;&amp;</span><span class="k">mut</span> <span class="n">Self</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">cx</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">Context</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Poll</span><span class="o">&lt;</span><span class="nn">Self</span><span class="p">::</span><span class="n">Output</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>可以看到执行后的返回结果，一个是就绪返回执行结果，另一个是未就绪待定。</p><div class="language-rust highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="nd">#[must_use</span> <span class="nd">=</span> <span class="s">"this `Poll` may be a `Pending` variant, which should be handled"</span><span class="nd">]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">Poll</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nf">Ready</span><span class="p">(</span><span class="n">T</span><span class="p">),</span>
+    <span class="n">Pending</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>可能到这里你还是云里雾里，我们写一段代码，帮助你理解。完整代码见：<a href="https://github.com/superLish/superLish.github.io/tree/master/_posts/rust/async/future_study">future_study</a></p><div class="language-rust highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+</pre><td class="rouge-code"><pre><span class="k">use</span> <span class="n">futures</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::{</span><span class="nn">future</span><span class="p">::</span><span class="n">Future</span><span class="p">,</span> <span class="nn">pin</span><span class="p">::</span><span class="n">Pin</span><span class="p">,</span> <span class="nn">sync</span><span class="p">::{</span><span class="nb">Arc</span><span class="p">,</span> <span class="n">Mutex</span><span class="p">},</span> <span class="nn">task</span><span class="p">::{</span><span class="n">Context</span><span class="p">,</span> <span class="n">Poll</span><span class="p">,</span> <span class="n">Waker</span><span class="p">},</span> <span class="n">thread</span><span class="p">,</span> <span class="nn">time</span><span class="p">::</span><span class="n">Duration</span><span class="p">};</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c">// 我们现在还没有实现调度器，所以要用一下futues库里的一个调度器。</span>
+    <span class="nn">futures</span><span class="p">::</span><span class="nn">executor</span><span class="p">::</span><span class="nf">block_on</span><span class="p">(</span><span class="nn">TimerFuture</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)));</span>    
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">SharedState</span> <span class="p">{</span>
+    <span class="n">completed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">waker</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Waker</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c">// 我们想要实现一个定时器Future</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">TimerFuture</span> <span class="p">{</span>
+    <span class="n">share_state</span><span class="p">:</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">Mutex</span><span class="o">&lt;</span><span class="n">SharedState</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c">// impl Future trait for TimerFuture.</span>
+<span class="k">impl</span> <span class="n">Future</span> <span class="k">for</span> <span class="n">TimerFuture</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">Output</span> <span class="o">=</span> <span class="p">();</span>
+    <span class="c">// executor will run this poll ,and Context is to tell future how to wakeup the task.</span>
+    <span class="k">fn</span> <span class="nf">poll</span><span class="p">(</span><span class="k">self</span><span class="p">:</span> <span class="n">Pin</span><span class="o">&lt;&amp;</span><span class="k">mut</span> <span class="n">Self</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">cx</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">Context</span><span class="o">&lt;</span><span class="nv">'_</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Poll</span><span class="o">&lt;</span><span class="nn">Self</span><span class="p">::</span><span class="n">Output</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">share_state</span> <span class="o">=</span> <span class="k">self</span><span class="py">.share_state</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+        <span class="k">if</span> <span class="n">share_state</span><span class="py">.completed</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"future ready. execute poll to return."</span><span class="p">);</span>
+            <span class="nn">Poll</span><span class="p">::</span><span class="nf">Ready</span><span class="p">(())</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"future not ready, tell the future task how to wakeup to executor"</span><span class="p">);</span>
+            <span class="c">// 你要告诉future，当事件就绪后怎么唤醒任务去调度执行，而这个waker根具体的调度器有关</span>
+            <span class="c">// 调度器执行的时候会将上下文信息传进来，里面最重要的一项就是Waker</span>
+            <span class="n">share_state</span><span class="py">.waker</span> <span class="o">=</span> <span class="nf">Some</span><span class="p">(</span><span class="n">cx</span><span class="nf">.waker</span><span class="p">()</span><span class="nf">.clone</span><span class="p">());</span>
+            <span class="nn">Poll</span><span class="p">::</span><span class="n">Pending</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">TimerFuture</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">(</span><span class="n">duration</span><span class="p">:</span> <span class="n">Duration</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Self</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">share_state</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Mutex</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">SharedState</span><span class="p">{</span><span class="n">completed</span><span class="p">:</span><span class="k">false</span><span class="p">,</span> <span class="n">waker</span><span class="p">:</span><span class="nb">None</span><span class="p">}));</span>
+        <span class="k">let</span> <span class="n">thread_shared_state</span> <span class="o">=</span> <span class="n">share_state</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+            <span class="nn">thread</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">share_state</span> <span class="o">=</span> <span class="n">thread_shared_state</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+            <span class="n">share_state</span><span class="py">.completed</span> <span class="o">=</span> <span class="k">true</span><span class="p">;</span>
+            <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">waker</span><span class="p">)</span> <span class="o">=</span> <span class="n">share_state</span><span class="py">.waker</span><span class="nf">.take</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"detect future is ready, wakeup the future task to executor."</span><span class="p">);</span>
+                <span class="n">waker</span><span class="nf">.wake</span><span class="p">()</span>    <span class="c">// wakeup the future task to executor.</span>
+            <span class="p">}</span>
+        <span class="p">});</span>
+
+        <span class="n">TimerFuture</span> <span class="p">{</span><span class="n">share_state</span><span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>执行结果如下：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre>future not ready, tell the future task how to wakeup to executor
+detect future is ready, wakeup the future task to executor.
+future ready. execute poll to return.
+</pre></table></code></div></div><p>可以看到，刚开始的时候，定时10s事件还未完成，处在<code class="language-plaintext highlighter-rouge">Pending</code>状态，这时要告诉这个任务后面就绪后怎么唤醒去调度执行。等10s后，定时事件完成了，通过前面的设置的<code class="language-plaintext highlighter-rouge">Waker</code>，唤醒这个<code class="language-plaintext highlighter-rouge">Future</code>任务去调度执行。这里，我们看一下<code class="language-plaintext highlighter-rouge">Context</code>和<code class="language-plaintext highlighter-rouge">Waker</code>是怎么定义的：</p><div class="language-rust highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre><td class="rouge-code"><pre><span class="c">/// The `Context` of an asynchronous task.</span>
+<span class="c">///</span>
+<span class="c">/// Currently, `Context` only serves to provide access to a `&amp;Waker`</span>
+<span class="c">/// which can be used to wake the current task.</span>
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"futures_api"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.36.0"</span><span class="nd">)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Context</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">waker</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">Waker</span><span class="p">,</span>
+    <span class="c">// Ensure we future-proof against variance changes by forcing</span>
+    <span class="c">// the lifetime to be invariant (argument-position lifetimes</span>
+    <span class="c">// are contravariant while return-position lifetimes are</span>
+    <span class="c">// covariant).</span>
+    <span class="mi">_</span><span class="n">marker</span><span class="p">:</span> <span class="n">PhantomData</span><span class="o">&lt;</span><span class="k">fn</span><span class="p">(</span><span class="o">&amp;</span><span class="nv">'a</span> <span class="p">())</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="p">()</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c">// A Waker is a handle for waking up a task by notifying its executor that it is ready to be run.</span>
+<span class="nd">#[repr(transparent)]</span>
+<span class="nd">#[stable(feature</span> <span class="nd">=</span> <span class="s">"futures_api"</span><span class="nd">,</span> <span class="nd">since</span> <span class="nd">=</span> <span class="s">"1.36.0"</span><span class="nd">)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Waker</span> <span class="p">{</span>
+    <span class="n">waker</span><span class="p">:</span> <span class="n">RawWaker</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>现在你应该对<code class="language-plaintext highlighter-rouge">Future</code>有新的理解了，上面的代码，我们并没有实现调度器，而是使用的<code class="language-plaintext highlighter-rouge">futures</code>库中提供的一个调度器去执行，下面自己实现一个调度器，看一下它的原理。而在Rust中，真正要用的话，还是要学习<code class="language-plaintext highlighter-rouge">tokio</code>库，这里我们只是为了讲述一下实现原理，以便于理解异步是怎么一回事。关键代码如下：</p><div class="language-rust highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+</pre><td class="rouge-code"><pre><span class="k">use</span> <span class="nn">std</span><span class="p">::{</span><span class="nn">future</span><span class="p">::</span><span class="n">Future</span><span class="p">,</span> <span class="nn">pin</span><span class="p">::</span><span class="n">Pin</span><span class="p">,</span> <span class="nn">sync</span><span class="p">::{</span><span class="nb">Arc</span><span class="p">,</span> <span class="n">Mutex</span><span class="p">},</span> <span class="nn">task</span><span class="p">::{</span><span class="n">Context</span><span class="p">,</span> <span class="n">Poll</span><span class="p">,</span> <span class="n">Waker</span><span class="p">},</span> <span class="n">thread</span><span class="p">,</span> <span class="nn">time</span><span class="p">::</span><span class="n">Duration</span><span class="p">};</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">mpsc</span><span class="p">::{</span><span class="n">sync_channel</span><span class="p">,</span> <span class="n">SyncSender</span><span class="p">,</span> <span class="n">Receiver</span><span class="p">};</span>
+<span class="k">use</span> <span class="nn">futures</span><span class="p">::{</span><span class="nn">future</span><span class="p">::{</span><span class="n">FutureExt</span><span class="p">,</span> <span class="n">BoxFuture</span><span class="p">},</span> <span class="nn">task</span><span class="p">::{</span><span class="n">ArcWake</span><span class="p">,</span> <span class="n">waker_ref</span><span class="p">}};</span>
+
+<span class="k">use</span> <span class="nn">super</span><span class="p">::</span><span class="nn">timefuture</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">run_executor</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="n">spawner</span><span class="p">)</span> <span class="o">=</span> <span class="nf">new_executor_and_spawner</span><span class="p">();</span>
+    <span class="c">// 将Future封装成一个任务，分发到调度器去执行</span>
+    <span class="n">spawner</span><span class="nf">.spawn</span><span class="p">(</span> <span class="k">async</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">v</span> <span class="o">=</span> <span class="nn">TimerFuture</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"return value: {}"</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
+        <span class="n">v</span>
+    <span class="p">});</span>
+
+    <span class="k">drop</span><span class="p">(</span><span class="n">spawner</span><span class="p">);</span>
+    <span class="n">executor</span><span class="nf">.run</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">new_executor_and_spawner</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="p">(</span><span class="n">Executor</span><span class="p">,</span> <span class="n">Spawner</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="n">MAX_QUEUE_TASKS</span><span class="p">:</span> <span class="nb">usize</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">;</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">task_sender</span><span class="p">,</span> <span class="n">ready_queue</span><span class="p">)</span> <span class="o">=</span> <span class="nf">sync_channel</span><span class="p">(</span><span class="n">MAX_QUEUE_TASKS</span><span class="p">);</span>
+    <span class="p">(</span><span class="n">Executor</span><span class="p">{</span><span class="n">ready_queue</span><span class="p">},</span> <span class="n">Spawner</span><span class="p">{</span><span class="n">task_sender</span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="c">// executor , received ready task to execute.</span>
+<span class="k">struct</span> <span class="n">Executor</span> <span class="p">{</span>
+    <span class="n">ready_queue</span><span class="p">:</span> <span class="n">Receiver</span><span class="o">&lt;</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Executor</span> <span class="p">{</span>
+    <span class="c">// 实际运行具体的Future任务，不断的接收Future task执行。</span>
+    <span class="k">fn</span> <span class="nf">run</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">while</span> <span class="k">let</span> <span class="nf">Ok</span><span class="p">(</span><span class="n">task</span><span class="p">)</span> <span class="o">=</span> <span class="k">self</span><span class="py">.ready_queue</span><span class="nf">.recv</span><span class="p">()</span> <span class="p">{</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"received task. {}"</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">future_slot</span> <span class="o">=</span> <span class="n">task</span><span class="py">.future</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+            <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="k">mut</span> <span class="n">future</span><span class="p">)</span> <span class="o">=</span> <span class="n">future_slot</span><span class="nf">.take</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">let</span> <span class="n">waker</span> <span class="o">=</span> <span class="nf">waker_ref</span><span class="p">(</span><span class="o">&amp;</span><span class="n">task</span><span class="p">);</span>
+                <span class="k">let</span> <span class="n">context</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">Context</span><span class="p">::</span><span class="nf">from_waker</span><span class="p">(</span><span class="o">&amp;*</span><span class="n">waker</span><span class="p">);</span>
+                <span class="k">if</span> <span class="k">let</span> <span class="nn">Poll</span><span class="p">::</span><span class="n">Pending</span> <span class="o">=</span> <span class="n">future</span><span class="nf">.as_mut</span><span class="p">()</span><span class="nf">.poll</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="o">*</span><span class="n">future_slot</span> <span class="o">=</span> <span class="nf">Some</span><span class="p">(</span><span class="n">future</span><span class="p">);</span>
+                    <span class="nd">println!</span><span class="p">(</span><span class="s">"executor run the future task, but is not ready, create a future again."</span><span class="p">);</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="nd">println!</span><span class="p">(</span><span class="s">"executor run the future task, is ready. the future task is done."</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// 负责将一个Future封装成一个Task，分发到调度器去执行。</span>
+<span class="nd">#[derive(Clone)]</span>
+<span class="k">struct</span> <span class="n">Spawner</span> <span class="p">{</span>
+    <span class="n">task_sender</span><span class="p">:</span> <span class="n">SyncSender</span><span class="o">&lt;</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Spawner</span> <span class="p">{</span>
+    <span class="c">// encapsul a future object to task , wakeup to executor.</span>
+    <span class="k">fn</span> <span class="nf">spawn</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">future</span><span class="p">:</span> <span class="k">impl</span> <span class="n">Future</span><span class="o">&lt;</span><span class="n">Output</span> <span class="o">=</span> <span class="nb">String</span><span class="o">&gt;</span> <span class="o">+</span> <span class="nv">'static</span> <span class="o">+</span> <span class="nb">Send</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">future</span> <span class="o">=</span> <span class="n">future</span><span class="nf">.boxed</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">task</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">Task</span> <span class="p">{</span>
+            <span class="n">future</span><span class="p">:</span> <span class="nn">Mutex</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nf">Some</span><span class="p">(</span><span class="n">future</span><span class="p">)),</span>
+            <span class="n">task_sender</span><span class="p">:</span> <span class="k">self</span><span class="py">.task_sender</span><span class="nf">.clone</span><span class="p">(),</span>
+        <span class="p">});</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"first dispatch the future task to executor."</span><span class="p">);</span>
+        <span class="k">self</span><span class="py">.task_sender</span><span class="nf">.send</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="nf">.expect</span><span class="p">(</span><span class="s">"too many tasks queued."</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// 等待调度执行的Future任务，这个任务必须要实现ArcWake，表明怎么去唤醒任务去调度执行。</span>
+<span class="k">struct</span> <span class="n">Task</span> <span class="p">{</span>
+    <span class="n">future</span><span class="p">:</span> <span class="n">Mutex</span><span class="o">&lt;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="n">BoxFuture</span><span class="o">&lt;</span><span class="nv">'static</span><span class="p">,</span> <span class="nb">String</span><span class="o">&gt;&gt;&gt;</span><span class="p">,</span>
+    <span class="n">task_sender</span><span class="p">:</span> <span class="n">SyncSender</span><span class="o">&lt;</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">ArcWake</span> <span class="k">for</span> <span class="n">Task</span> <span class="p">{</span>
+    <span class="c">// A way of waking up a specific task.</span>
+    <span class="k">fn</span> <span class="nf">wake_by_ref</span><span class="p">(</span><span class="n">arc_self</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="n">Self</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">clone</span> <span class="o">=</span> <span class="n">arc_self</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="n">arc_self</span><span class="py">.task_sender</span><span class="nf">.send</span><span class="p">(</span><span class="n">clone</span><span class="p">)</span><span class="nf">.expect</span><span class="p">(</span><span class="s">"too many tasks queued"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>运行结果如下：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre>first dispatch the future task to executor.     
+received task. 1                                
+future not ready, tell the future task how to wakeup to executor
+executor run the future task, but is not ready, create a future again.
+detect future is ready, wakeup the future task to executor.     
+received task. 2
+future ready. execute poll to return.
+return value: timer done.
+executor run the future task, is ready. the future task is done.
+</pre></table></code></div></div><p>第一次调度的时候，因为还没有就绪，在<code class="language-plaintext highlighter-rouge">Pending</code>状态，告诉这个任务，后面就绪是怎么唤醒该任务。然后当事件就绪的时候，因为前面告诉了如何唤醒，按方法唤醒了该任务去调度执行。其实，在实际应用场景中，难的地方还在于，你怎么知道什么时候事件就绪，去唤醒任务，我们很容易联想到Linux系统的epoll，tokio等底层，也是基于epoll实现的。通过epoll，我们就能方便的知道事件什么时候就绪了。</p><hr /><h3 id="参考资料">参考资料</h3><p>主要学习资料如下：</p><ul><li><a href="https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html">Asynchronous Programming in Rust</a><li><a href="https://cfsamson.github.io/books-futures-explained/introduction.html">Futures Explained in 200 Lines of Rust</a><li><a href="https://stevenbai.top/rust/futures_explained_in_200_lines_of_rust/">200行代码讲透RUST FUTURES</a></ul><p>上面的文章主要是学习异步的实现原理，理解异步是怎么实现的，而进行Rust异步编程时的具体实现，则主要依赖下面2个库：</p><ul><li><a href="https://docs.rs/futures/0.3.5/futures/">future</a> —— 主要完成了对异步的抽象<li><a href="https://docs.rs/tokio/0.2.20/tokio/">tokio</a> —— 异步Future运行时 学习这两个库的时候，一定要注意版本问题，这两个库最近变化的比较快，一定要学最新的。</ul></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/superLish.github.io/categories/cs/'>CS</a>, <a href='/superLish.github.io/categories/rust/'>Rust</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/superLish.github.io/tags/rust/" class="post-tag no-text-decoration" >Rust</a> <a href="/superLish.github.io/tags/async/" class="post-tag no-text-decoration" >async</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>Recent Update</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/superLish.github.io/posts/%E6%97%A0%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E8%BF%94%E5%9B%9E%E7%AC%ACk%E5%A4%A7%E7%9A%84%E6%95%B0/">算法题：无序数组中返回第k大的数.md</a><li><a href="/superLish.github.io/posts/%E6%8E%92%E5%BA%8F/">排序</a><li><a href="/superLish.github.io/posts/%E7%BD%91%E7%BB%9C%E9%94%99%E8%AF%AF-Destination_unreachable-Host_administratively_prohibited/">网络错误:Destination_unreachable:Host_administratively_prohibited</a><li><a href="/superLish.github.io/posts/TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E5%88%86%E6%89%8B/">TCP三次握手与四次分手</a><li><a href="/superLish.github.io/posts/TCP%E7%9A%84%E5%B7%A5%E4%BD%9C%E9%80%BB%E8%BE%91/">谈谈TCP</a></ul></div><div id="access-tags"> <span>Trending Tags</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">Contents</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/superLish.github.io/posts/Rust%E5%BC%82%E6%AD%A5%E4%B9%8B%E8%87%AA%E5%B7%B1%E6%9E%84%E9%80%A0block_on/"><div class="card-body"> <span class="timeago small" > Feb 5 <i class="unloaded">2021-02-05T20:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Rust异步之自己构造block_on</h3><div class="text-muted small"><p> 一个block_on代码示例 我们在进行异步编程时，经常会有下面形式的代码： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 use tokio::time::Duration; fn main() { let runtime = tokio::runtime::Builder::new_multi_thread() .enable_all() ...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/Rust%E6%9B%B4%E6%8D%A2Crates%E6%BA%90/"><div class="card-body"> <span class="timeago small" > Sep 8, 2017 <i class="unloaded">2017-09-08T20:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Rust更换Crates源</h3><div class="text-muted small"><p> Rust编译时遇到如下问题： Downloading futures v0.1.19 warning: spurious network error (2 tries remaining): [28] Timeout was reached (Operation timed out after 30857 milliseconds with 0 out of 0 bytes received...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/RefCell%E5%92%8C%E5%86%85%E9%83%A8%E5%8F%AF%E5%8F%98%E6%80%A7/"><div class="card-body"> <span class="timeago small" > Oct 16, 2017 <i class="unloaded">2017-10-16T20:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>RefCell和内部可变性</h3><div class="text-muted small"><p> RefCell Rust在编译阶段会进行严格的借用规则检查，规则如下： 在任意给定时间，要么只能有一个可变引用，要么只能有多个不可变引用。 引用必须总是有效。 即在编译阶段，当有一个不可变值时，不能可变的借用它。如下代码所示： fn main() { let x = 5; let y = &amp;mut x; } 会产生编译错误： err...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/superLish.github.io/posts/%E8%A1%80%E8%89%B2%E6%B5%AA%E6%BC%AB/" class="btn btn-outline-primary" prompt="Older"><p>读《血色浪漫》</p></a> <a href="/superLish.github.io/posts/Raft%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/" class="btn btn-outline-primary" prompt="Newer"><p>Raft共识算法</p></a></div></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2021 <a href="https://github.com/superLish">lisheng</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">Trending Tags</h4><a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/superLish.github.io/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://superLish.github.io{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>

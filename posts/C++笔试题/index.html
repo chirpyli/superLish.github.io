@@ -1,0 +1,719 @@
+<!DOCTYPE html><html lang="en-US" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="pv-cache-enabled" content="false"><meta name="generator" content="Jekyll v4.2.0" /><meta property="og:title" content="C++笔试题" /><meta name="author" content="lisheng" /><meta property="og:locale" content="en_US" /><meta name="description" content="1. 运行下面的C++代码，得到的结果是什么？ ```c++ #include using namespace std;" /><meta property="og:description" content="1. 运行下面的C++代码，得到的结果是什么？ ```c++ #include using namespace std;" /><link rel="canonical" href="https://superlish.github.io/superLish.github.io/posts/C++%E7%AC%94%E8%AF%95%E9%A2%98/" /><meta property="og:url" content="https://superlish.github.io/superLish.github.io/posts/C++%E7%AC%94%E8%AF%95%E9%A2%98/" /><meta property="og:site_name" content="ChirpyLi" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2014-03-10T08:55:00+08:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="C++笔试题" /><meta name="twitter:site" content="@twitter_username" /><meta name="twitter:creator" content="@lisheng" /><meta name="google-site-verification" content="google_meta_tag_verification" /> <script type="application/ld+json"> {"description":"1. 运行下面的C++代码，得到的结果是什么？ ```c++ #include using namespace std;","url":"https://superlish.github.io/superLish.github.io/posts/C++%E7%AC%94%E8%AF%95%E9%A2%98/","headline":"C++笔试题","dateModified":"2021-02-21T14:56:42+08:00","@type":"BlogPosting","datePublished":"2014-03-10T08:55:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://superlish.github.io/superLish.github.io/posts/C++%E7%AC%94%E8%AF%95%E9%A2%98/"},"author":{"@type":"Person","name":"lisheng"},"@context":"https://schema.org"}</script><title>C++笔试题 | ChirpyLi</title><link rel="shortcut icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/superLish.github.io/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/superLish.github.io/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/superLish.github.io/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/superLish.github.io/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/superLish.github.io/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/superLish.github.io/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/superLish.github.io/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/superLish.github.io/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/superLish.github.io/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/superLish.github.io/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/superLish.github.io/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/superLish.github.io/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/superLish.github.io/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/superLish.github.io/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/superLish.github.io/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/superLish.github.io/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/superLish.github.io/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/superLish.github.io/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials"><link rel="dns-prefetch" href="https://www.google-analytics.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="stylesheet" href="/superLish.github.io/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/superLish.github.io/assets/js/dist/post.min.js"></script> <script defer src="/superLish.github.io/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id="></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', ''); }); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/superLish.github.io/" alt="avatar" class="mx-auto"> <img src="https://cdn.jsdelivr.net/gh/cotes2020/chirpy-images/commons/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/superLish.github.io/">ChirpyLi</a></div><div class="site-subtitle font-italic">love yourself</div></div><ul class="w-100"><li class="nav-item"> <a href="/superLish.github.io/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/superLish.github.io/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/superLish.github.io/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/superLish.github.io/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/superLish.github.io/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/superLish" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/superLish.github.io/"> Posts </a> </span> <span>C++笔试题</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>C++笔试题</h1><div class="post-meta text-muted d-flex flex-column"><div> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Mon, Mar 10, 2014, 8:55 AM +0800" > Mar 10, 2014 <i class="unloaded">2014-03-10T08:55:00+08:00</i> </span> by <span class="author"> lisheng </span></div><div> <span> Updated <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Sun, Feb 21, 2021, 2:56 PM +0800" > Feb 21 <i class="unloaded">2021-02-21T14:56:42+08:00</i> </span> </span> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="3438 words">19 min</span></div></div><div class="post-content"><h4 id="1-运行下面的c代码得到的结果是什么">1. 运行下面的<a href="https://github.com/superLish/superLish.github.io/blob/master/_posts/cs-notes/C%2B%2B/C%2B%2B%E7%AC%94%E8%AF%95%E9%A2%98/code1.cpp">C++代码</a>，得到的结果是什么？</h4><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">A</span>  
+<span class="p">{</span>  
+<span class="nl">public:</span>  
+    <span class="n">A</span><span class="p">(</span><span class="kt">int</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span> <span class="n">m_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="p">{}</span>  
+    
+    <span class="kt">void</span> <span class="n">Print1</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"hello world"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>  
+    <span class="p">}</span>  
+    
+    <span class="kt">void</span> <span class="n">Print2</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">m_value</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>  
+    <span class="p">}</span>  
+    
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Print3</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"hello world"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>  
+    <span class="p">}</span>  
+<span class="nl">private:</span>  
+    <span class="kt">int</span> <span class="n">m_value</span><span class="p">;</span>  
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">A</span><span class="o">*</span> <span class="n">pA</span><span class="p">;</span>
+	<span class="n">pA</span><span class="o">-&gt;</span><span class="n">Print1</span><span class="p">();</span>
+	<span class="n">pA</span><span class="o">-&gt;</span><span class="n">Print2</span><span class="p">();</span>
+	<span class="n">pA</span><span class="o">-&gt;</span><span class="n">Print3</span><span class="p">();</span>
+
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">/*</span>
+<span class="err">运行结果：</span>
+<span class="n">hello</span> <span class="n">world</span>
+<span class="n">Segmentation</span> <span class="n">fault</span> <span class="p">(</span><span class="n">core</span> <span class="n">dumped</span>
+ <span class="o">*</span> <span class="o">/</span>
+</pre></table></code></div></div><p>答案是：Print1调用正常，打印出hello world，但运行至Print2时，程序崩溃。调用Print1时，并不需要pA的地址，因为Print1的函数地址是固定的。编译器会给Print1传入一个this指针，该指针为NULL，但在Print1中该this指针并没有用到。<strong>只要程序运行时没有访问不该访问的内存就不会出错</strong>，因此运行正常。在运行print2时，需要this指针才能得到m_value的值。由于此时this指针为NULL，因此程序崩溃了。对于Print3这一虚函数，C++在调用虚函数的时候，要根据实例（即this指针指向的实例）中虚函数表指针得到虚函数表，再从虚函数表中找到函数的地址。由于这一步需要访问实例的地址（即this指针），而此时this指针为空指针，因此导致内存访问出错。</p><h4 id="2-运行下面的c代码得到的结果是什么">2. 运行下面的<a href="https://github.com/superLish/superLish.github.io/blob/master/_posts/cs-notes/C%2B%2B/C%2B%2B%E7%AC%94%E8%AF%95%E9%A2%98/code2.cpp">C++代码</a>，得到的结果是什么？</h4><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">A</span>
+<span class="p">{</span>
+<span class="nl">public:</span>  
+    <span class="n">A</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">Print</span><span class="p">();</span>  
+    <span class="p">}</span>  
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Print</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"A is constructed."</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>  
+<span class="p">};</span> 
+
+<span class="k">class</span> <span class="nc">B</span><span class="o">:</span> <span class="k">public</span> <span class="n">A</span>  
+<span class="p">{</span>  
+<span class="nl">public:</span>  
+    <span class="n">B</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">Print</span><span class="p">();</span>  
+    <span class="p">}</span>  
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Print</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"B is constructed."</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> 
+    <span class="p">}</span>  
+<span class="p">};</span>  
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>  
+    <span class="n">A</span><span class="o">*</span> <span class="n">pA</span> <span class="o">=</span> <span class="k">new</span> <span class="n">B</span><span class="p">();</span>  
+    <span class="k">delete</span> <span class="n">pA</span><span class="p">;</span>  
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>  
+<span class="p">}</span>
+</pre></table></code></div></div><p>先后打印出两行:A is constructed. B is constructed. 调用B的构造函数时，先会调用B的基类A的构造函数。然后在A的构造函数里调用Print。由于此时实例的类型B的部分还没有构造好，本质上它只是A的一个实例，他的虚函数表指针指向的是类型A的虚函数表。因此此时调用的Print是A::Print。接着调用类型B的构造函数，并调用Print。此时已经开始构造B，并且虚函数表的指针已指向类B的虚函数表地址，因此此时调用的Print是B::Print。</p><h4 id="3-运行下面的c代码输出是什么">3. 运行下面的<a href="https://github.com/superLish/superLish.github.io/blob/master/_posts/cs-notes/C%2B%2B/C%2B%2B%E7%AC%94%E8%AF%95%E9%A2%98/code3.cpp">C++代码</a>，输出是什么？</h4><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">A</span><span class="p">{</span>  
+<span class="nl">public:</span>  
+    <span class="n">A</span><span class="p">()</span><span class="o">:</span> <span class="n">n2</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">n1</span><span class="p">(</span><span class="n">n2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{}</span>  
+   
+    <span class="kt">void</span> <span class="n">Print</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"n1: "</span> <span class="o">&lt;&lt;</span> <span class="n">n1</span> <span class="o">&lt;&lt;</span> <span class="s">", n2: "</span> <span class="o">&lt;&lt;</span> <span class="n">n2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>  
+    <span class="p">}</span>  
+<span class="nl">private:</span>  
+    <span class="kt">int</span> <span class="n">n1</span><span class="p">;</span>  
+    <span class="kt">int</span> <span class="n">n2</span><span class="p">;</span>  
+<span class="p">};</span> 
+ 
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>  
+    <span class="n">A</span> <span class="n">a</span><span class="p">;</span>  
+    <span class="n">a</span><span class="p">.</span><span class="n">Print</span><span class="p">();</span>  
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>  
+<span class="p">}</span> 
+</pre></table></code></div></div><p>输出n1是一个随机的数字，n2为0。<strong>在C++中，成员变量的初始化顺序与变量在类型中的申明顺序相同，而与它们在构造函数的初始化列表中的顺序无关。</strong> 因此首先初始化n1，而初始n1的参数n2还没有初始化，是一个随机值。初始化n2时，根据参数0对其初始化，故n2=0。</p><h4 id="4-编译运行下面的c代码结果是什么a编译错误b编译成功运行时程序崩溃c编译运行正常输出10请选择正确答案并分析原因">4. 编译运行下面的<a href="https://github.com/superLish/superLish.github.io/blob/master/_posts/cs-notes/C%2B%2B/C%2B%2B%E7%AC%94%E8%AF%95%E9%A2%98/code4.cpp">C++代码</a>，结果是什么？（A）编译错误；（B）编译成功，运行时程序崩溃；（C）编译运行正常，输出10。请选择正确答案并分析原因。</h4><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">A</span><span class="p">{</span>  
+<span class="nl">private:</span>  
+    <span class="kt">int</span> <span class="n">value</span><span class="p">;</span>  
+<span class="nl">public:</span>  
+    <span class="n">A</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>  
+        <span class="n">value</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>  
+    <span class="p">}</span>  
+    <span class="n">A</span><span class="p">(</span><span class="n">A</span> <span class="n">other</span><span class="p">)</span> <span class="p">{</span>  
+        <span class="n">value</span> <span class="o">=</span> <span class="n">other</span><span class="p">.</span><span class="n">value</span><span class="p">;</span>  
+    <span class="p">}</span>  
+    <span class="kt">void</span> <span class="n">Print</span><span class="p">()</span> <span class="p">{</span>  
+       <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>  
+    <span class="p">}</span>  
+<span class="p">};</span>  
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>  
+    <span class="n">A</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>  
+    <span class="n">A</span> <span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>  
+    <span class="n">b</span><span class="p">.</span><span class="n">Print</span><span class="p">();</span>  
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>  
+<span class="p">}</span> 
+</pre></table></code></div></div><p>编译错误。在复制构造函数中传入的参数是A的一个实例。<strong>由于是传值，把形参拷贝到实参会调用复制构造函数。因此如果允许复制构造函数传值，那么会形成永无休止的递归并造成栈溢出。因此C++的标准不允许复制构造函数传值参数，而必须是传引用或者常量引用。</strong> 复制构造函数的参数需要改为：const A&amp; other。</p><h4 id="5-运行如下的c代码输出是什么">5. 运行如下的<a href="https://github.com/superLish/superLish.github.io/blob/master/_posts/cs-notes/C%2B%2B/C%2B%2B%E7%AC%94%E8%AF%95%E9%A2%98/code5.cpp">C++代码</a>，输出是什么？</h4><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">A</span> <span class="p">{</span>  
+<span class="nl">public:</span>  
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Fun</span><span class="p">(</span><span class="kt">int</span> <span class="n">number</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>  
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"A::Fun with number "</span> <span class="o">&lt;&lt;</span> <span class="n">number</span><span class="p">;</span>  
+    <span class="p">}</span>  
+<span class="p">};</span>  
+       
+<span class="k">class</span> <span class="nc">B</span><span class="o">:</span><span class="k">public</span> <span class="n">A</span>  
+<span class="p">{</span>  
+<span class="nl">public:</span>  
+   <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Fun</span><span class="p">(</span><span class="kt">int</span> <span class="n">number</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="p">{</span>  
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"B::Fun with number "</span> <span class="o">&lt;&lt;</span> <span class="n">number</span><span class="p">;</span>  
+    <span class="p">}</span>  
+<span class="p">};</span>  
+       
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>  
+    <span class="n">B</span> <span class="n">b</span><span class="p">;</span>  
+    <span class="n">A</span> <span class="o">&amp;</span><span class="n">a</span> <span class="o">=</span> <span class="n">b</span><span class="p">;</span>  
+    <span class="n">a</span><span class="p">.</span><span class="n">Fun</span><span class="p">();</span>  
+
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>  
+</pre></table></code></div></div><p>输出 B::Fun with number 10。由于a是一个指向B实例的引用，因此在运行的时候会调用B::Fun。但缺省参数是在编译期决定的。在编译的时候，编译器只知道a是一个类型a的引用，具体指向什么类型在编译期是不能确定的，因此会按照A::Fun的声明把缺省参数number设为10。这一题的<strong>关键在于理解确定缺省参数的值是在编译的时候，但确定引用、指针的虚函数调用哪个类型的函数是在运行的时候</strong>。</p><h4 id="6-运行如下的c代码输出是什么">6. 运行如下的<a href="https://github.com/superLish/superLish.github.io/blob/master/_posts/cs-notes/C%2B%2B/C%2B%2B%E7%AC%94%E8%AF%95%E9%A2%98/code6.c">C代码</a>，输出是什么？</h4><div class="language-c highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;stdio.h&gt;
+</span>
+<span class="kt">char</span><span class="o">*</span> <span class="nf">GetString1</span><span class="p">()</span> <span class="p">{</span>  
+   <span class="kt">char</span> <span class="n">p</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"Hello World"</span><span class="p">;</span>    <span class="c1">//指向临时分配的桟空间，当运行至函数体外时，空间将被释放  </span>
+   <span class="k">return</span> <span class="n">p</span><span class="p">;</span>  
+<span class="p">}</span>  
+
+<span class="kt">char</span><span class="o">*</span> <span class="nf">GetString2</span><span class="p">()</span> <span class="p">{</span>  
+   <span class="kt">char</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="s">"Hello World"</span><span class="p">;</span>     <span class="c1">//指向全局常量区  </span>
+   <span class="k">return</span> <span class="n">p</span><span class="p">;</span>  
+<span class="p">}</span>  
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>  
+    <span class="n">printf</span><span class="p">(</span><span class="s">"GetString1 returns: %s. </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">GetString1</span><span class="p">());</span>  
+    <span class="n">printf</span><span class="p">(</span><span class="s">"GetString2 returns: %s. </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">GetString2</span><span class="p">());</span>  
+    
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>  
+<span class="p">}</span>
+</pre></table></code></div></div><p>输出两行，第一行GetString1 returns: 后面跟的是一串随机的内容，而第二行GetString2 returns: Hello World.两个函数的区别在于GetString1中是一个数组，而GetString2中是一个指针。运行到GetString1时，p是一个数组，会开辟一块内存，并拷贝”Hello World”初始化该数组。接着返回数组的首地址并退出该函数。由于p是GetString1内的一个局部变量，当运行到这个函数外面的时候，这个数组的内存会被释放掉。因此在main函数里再去访问这个数组的内容时，结果是随机的。运行到GetString2时，p是一个指针，它指向的是字符串常量区的一个常量字符串。该常量字符串是一个全局的，并不会因为退出函数GetString2而被释放掉。</p><h4 id="7-运行下图中c代码输出的结果是什么">7. 运行下图中<a href="https://github.com/superLish/superLish.github.io/blob/master/_posts/cs-notes/C%2B%2B/C%2B%2B%E7%AC%94%E8%AF%95%E9%A2%98/code7.c">C代码</a>，输出的结果是什么？</h4><div class="language-c highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;stdio.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>  
+    <span class="kt">char</span> <span class="n">str1</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"hello world"</span><span class="p">;</span><span class="c1">//桟空间  </span>
+    <span class="kt">char</span> <span class="n">str2</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"hello world"</span><span class="p">;</span><span class="c1">//桟空间，临时分配，地址不同  </span>
+    <span class="kt">char</span><span class="o">*</span> <span class="n">str3</span> <span class="o">=</span> <span class="s">"hello world"</span><span class="p">;</span><span class="c1">//常量区  </span>
+    <span class="kt">char</span><span class="o">*</span> <span class="n">str4</span> <span class="o">=</span> <span class="s">"hello world"</span><span class="p">;</span><span class="c1">//指向同一块全局常量区  </span>
+    <span class="k">if</span><span class="p">(</span><span class="n">str1</span> <span class="o">==</span> <span class="n">str2</span><span class="p">)</span>  
+       <span class="n">printf</span><span class="p">(</span><span class="s">"str1 and str2 are same.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  
+    <span class="k">else</span>  
+       <span class="n">printf</span><span class="p">(</span><span class="s">"str1 and str2 are not same.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  
+    <span class="k">if</span><span class="p">(</span><span class="n">str3</span> <span class="o">==</span> <span class="n">str4</span><span class="p">)</span>  
+       <span class="n">printf</span><span class="p">(</span><span class="s">"str3 and str4 are same.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  
+    <span class="k">else</span>  
+        <span class="n">printf</span><span class="p">(</span><span class="s">"str3 and str4 are not same.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  
+       
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>  
+<span class="p">}</span>  
+</pre></table></code></div></div><p>这个题目与上一题目类似。str1和str2是两个字符串数组。我们会为它们分配两个长度为12个字节的空间，并把”hello world”的内容分别拷贝到数组中去。这是两个初始地址不同的数组，因此比较str1和str2的值，会不相同。str3和str4是两个指针，我们无需为它们分配内存以存储字符串的内容，而只需要把它们指向”hello world“在内存中的地址就可以了。由于”hello world”是常量字符串，它在内存中只有一个拷贝，因此str3和str4指向的是同一个地址。因此比较str3和str4的值，会是相同的。</p><h4 id="8-运行test输出结果是什么">8. 运行Test,输出结果是什么？</h4><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">Test</span><span class="p">()</span> <span class="p">{</span>  
+    <span class="k">class</span> <span class="nc">B</span>  
+    <span class="p">{</span>  
+    <span class="nl">public:</span>  
+        <span class="n">B</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"B</span><span class="se">\t</span><span class="s">"</span><span class="p">;</span>  
+        <span class="p">}</span>  
+        <span class="o">~</span><span class="n">B</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"~B</span><span class="se">\t</span><span class="s">"</span><span class="p">;</span>  
+        <span class="p">}</span>  
+    <span class="p">};</span> 
+
+    <span class="k">struct</span> <span class="nc">C</span>  
+    <span class="p">{</span>  
+        <span class="n">C</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"C</span><span class="se">\t</span><span class="s">"</span><span class="p">;</span>  
+        <span class="p">}</span>  
+        <span class="o">~</span><span class="n">C</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"~C</span><span class="se">\t</span><span class="s">"</span><span class="p">;</span>  
+        <span class="p">}</span>  
+    <span class="p">};</span>  
+    
+    <span class="k">struct</span> <span class="nc">D</span> <span class="o">:</span> <span class="n">B</span>  
+    <span class="p">{</span>  
+        <span class="n">D</span><span class="p">()</span> <span class="p">{</span>  
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"D</span><span class="se">\t</span><span class="s">"</span><span class="p">;</span>  
+        <span class="p">}</span>  
+        <span class="o">~</span><span class="n">D</span><span class="p">()</span> <span class="p">{</span>  
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"~D</span><span class="se">\t</span><span class="s">"</span><span class="p">;</span>  
+        <span class="p">}</span>  
+
+    <span class="nl">private:</span>  
+        <span class="n">C</span> <span class="n">c</span><span class="p">;</span>  
+    <span class="p">};</span>  
+
+    <span class="n">D</span> <span class="n">d</span><span class="p">;</span>  
+<span class="p">}</span>  
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">Test</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>运行结果：B C D ~D ~ C ~B。当实例化D对象时，由于继承自B，因而首先调用B的构造函数，之后初始化私有成员C，完成父类的构造与私有成员的初始化后再进入D的构造函数体内；之后，按照相反顺序完成对象的析构操作。初始化与赋值是不同的，一般初始化是在初始化列表完成的，构造函数体中进行的是赋值操作。</p><h4 id="9-下列程序输出结果是什么">9. 下列程序输出结果是什么？</h4><div class="language-c highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;iostream&gt;
+</span><span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="n">class</span> <span class="n">A</span>  
+<span class="p">{</span>  
+<span class="nl">public:</span>  
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>          <span class="c1">//4字节  </span>
+    <span class="kt">char</span> <span class="n">b</span><span class="p">;</span>         <span class="c1">//1字节  </span>
+    <span class="kt">double</span> <span class="n">c</span><span class="p">;</span>       <span class="c1">//8字节，以此为基本单位进行字节对齐，上面的两个变量对齐后共为8字节，加上当前字节数，共为8+8=16字节。  </span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">print</span><span class="p">()</span><span class="c1">//虚函数，构建虚函数表，虚函数表指针需要4字节，字节对其，扩充为8字节  </span>
+    <span class="p">{</span>  
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"this is father's function!"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>  
+    <span class="p">}</span>  
+    
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">print1</span><span class="p">()</span><span class="c1">//地址存于虚函数表  </span>
+    <span class="p">{</span>  
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"this is father's function1!"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>  
+    <span class="p">}</span>  
+    
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">print2</span><span class="p">()</span><span class="c1">//无需分配内存  </span>
+    <span class="p">{</span>  
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"this is father's function2!"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>  
+    <span class="p">}</span>  
+<span class="nl">private:</span>  
+    <span class="kt">float</span> <span class="n">d</span><span class="p">;</span><span class="c1">//4字节，字节对其，扩充为8字节  </span>
+<span class="p">};</span>  
+  
+<span class="n">class</span> <span class="n">B</span> <span class="o">:</span> <span class="n">A</span><span class="c1">//首先承载A的大小：32字节  </span>
+<span class="p">{</span>  
+<span class="nl">public:</span>  
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">print</span><span class="p">()</span><span class="c1">//修改虚函数表地址  </span>
+    <span class="p">{</span>  
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"this is children's function!"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>  
+    <span class="p">}</span>  
+    <span class="kt">void</span> <span class="n">print1</span><span class="p">()</span><span class="c1">//仅存有函数入口地址，无需分配内存  </span>
+    <span class="p">{</span>  
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"this is children's function1!"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>  
+    <span class="p">}</span>  
+<span class="nl">private:</span>  
+    <span class="kt">char</span> <span class="n">e</span><span class="p">;</span><span class="c1">//1字节，字节对齐，扩充为8字节(可以发现，继承后，字节对齐单位也放生变化) </span>
+<span class="p">};</span>  
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"  "</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>  
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>  
+<span class="p">}</span>  
+</pre></table></code></div></div><p>运行结果：32，32.这个题目解决的关键在于掌握字节对齐的相关知识点。具体见上面注释。</p><h4 id="10-以下程序在编译与运行时或发生什么">10. 以下<a href="https://github.com/superLish/superLish.github.io/blob/master/_posts/cs-notes/C%2B%2B/C%2B%2B%E7%AC%94%E8%AF%95%E9%A2%98/code10.cpp">程序</a>，在编译与运行时或发生什么？</h4><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">A</span>  
+<span class="p">{</span>  
+<span class="nl">public:</span>  
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{}</span>  
+<span class="p">};</span>  
+
+<span class="k">class</span> <span class="nc">B</span>  
+<span class="p">{</span>  
+<span class="nl">public:</span>  
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{}</span>  
+<span class="p">};</span>  
+
+<span class="k">class</span> <span class="nc">C</span> <span class="o">:</span> <span class="k">public</span> <span class="n">A</span> <span class="p">,</span> <span class="k">public</span> <span class="n">B</span>  
+<span class="p">{</span>  
+<span class="nl">public:</span>  
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{}</span>  
+<span class="p">};</span>  
+
+<span class="kt">void</span> <span class="nf">bar1</span><span class="p">(</span><span class="n">A</span> <span class="o">*</span><span class="n">pa</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">B</span> <span class="o">*</span><span class="n">pc</span> <span class="o">=</span> <span class="k">dynamic_cast</span><span class="o">&lt;</span><span class="n">B</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">pa</span><span class="p">);</span><span class="c1">//运行期遍历继承树  </span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">pc</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>  
+
+<span class="kt">void</span> <span class="nf">bar2</span><span class="p">(</span><span class="n">A</span> <span class="o">*</span><span class="n">pa</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">B</span> <span class="o">*</span><span class="n">pc</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">B</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">pa</span><span class="p">);</span><span class="c1">//两个类无关，编译出错  </span>
+<span class="p">}</span> 
+
+<span class="kt">void</span> <span class="nf">bar3</span><span class="p">()</span> <span class="p">{</span>  
+    <span class="n">C</span> <span class="n">c</span><span class="p">;</span>  
+    <span class="n">A</span> <span class="o">*</span><span class="n">pa</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">;</span>  
+    <span class="n">B</span> <span class="o">*</span><span class="n">pb</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">B</span><span class="o">*&gt;</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">C</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">pa</span><span class="p">));</span><span class="c1">//存在继承关系，编译正确  </span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">pa</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">pb</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">A</span> <span class="n">a</span><span class="p">;</span>
+    <span class="n">bar1</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">);</span>
+    <span class="n">bar3</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>  
+<span class="p">}</span>   
+</pre></table></code></div></div><p>对于bar1，dynamic_cast是在运行时遍历继承树，所以，在编译时不会报错。但是因为A和B无继承关系，所以运行时报错。static_cast：编译器隐式执行的任何类型转换都可由它显示完成。其中对于：（1）基本类型。如可以将int转换为double(编译器会执行隐式转换)，但是不能将int<em>用它转换到double</em>（没有此隐式转换）。（2）对于用户自定义类型，如果两个类无关，则会出错，如果存在继承关系，则可以在基类和派生类之间进行任何转型，在编译期间不会出错。所以bar3可以通过编译。</p><h4 id="11-执行下列程序会发生什么">11. 执行下列<a href="https://github.com/superLish/superLish.github.io/blob/master/_posts/cs-notes/C%2B%2B/C%2B%2B%E7%AC%94%E8%AF%95%E9%A2%98/code11.cpp">程序</a>，会发生什么？</h4><div class="language-c++ highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;iostream&gt;
+#include&lt;stdio.h&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">A</span>  
+<span class="p">{</span>  
+<span class="nl">public:</span>  
+    <span class="n">string</span> <span class="n">a</span><span class="p">;</span>  
+    
+    <span class="kt">void</span> <span class="n">f1</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Hello World"</span><span class="p">);</span>  
+    <span class="p">}</span>  
+    
+    <span class="kt">void</span> <span class="n">f2</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">a</span> <span class="o">=</span> <span class="s">"Hello World"</span><span class="p">;</span>  
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span><span class="n">a</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>  
+    <span class="p">}</span>  
+    
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">f3</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">a</span> <span class="o">=</span> <span class="s">"Hello World"</span><span class="p">;</span>  
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span><span class="n">a</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>  
+    <span class="p">}</span>  
+    <span class="k">static</span> <span class="kt">void</span> <span class="n">f4</span><span class="p">()</span> <span class="p">{</span>  
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Hello World"</span><span class="p">);</span>  
+    <span class="p">}</span>  
+<span class="p">};</span>  
+      
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">A</span> <span class="o">*</span><span class="n">aptr</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>  <span class="c1">//创建一个A对象，对象指针为空，意味着对象仅有空壳，无法借助指针访问成员变量  </span>
+    <span class="n">aptr</span><span class="o">-&gt;</span><span class="n">f1</span><span class="p">();</span>      <span class="c1">//运行成功，调用f1函数仅需函数入口地址，无需访问对象中的成员变量  </span>
+    <span class="c1">// aptr-&gt;f2();      //运行失败，调用f2需访问成员变量  </span>
+    <span class="c1">// aptr-&gt;f3();      //运行失败，同上  </span>
+    <span class="n">aptr</span><span class="o">-&gt;</span><span class="n">f4</span><span class="p">();</span>      <span class="c1">//静态成员不属于任何对象，运行成功  </span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>  
+<span class="p">}</span>  
+</pre></table></code></div></div><p>此题解答如程序注释所示。</p><h4 id="12-下列函数运行情况如何">12. 下列<a href="https://github.com/superLish/superLish.github.io/blob/master/_posts/cs-notes/C%2B%2B/C%2B%2B%E7%AC%94%E8%AF%95%E9%A2%98/code12.c">函数</a>运行情况如何？</h4><div class="language-c highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="cp">#include&lt;string.h&gt;
+#include&lt;stdio.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">func</span><span class="p">()</span> <span class="p">{</span>  
+    <span class="kt">char</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>  
+    <span class="n">strcpy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="s">"aaa"</span><span class="p">);</span>  
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>    
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">func</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>Debug版崩溃，Release版正常。因为在Debug中有ASSERT断言保护，所以要崩溃，而在Release中就会删掉ASSERT，所以正常运行。但是不推荐这么做，因为这样会覆盖不属于自己的内存。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/superLish.github.io/categories/cs/'>CS</a>, <a href='/superLish.github.io/categories/c-c/'>C/C++</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>Recent Update</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/superLish.github.io/posts/%E6%97%A0%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E8%BF%94%E5%9B%9E%E7%AC%ACk%E5%A4%A7%E7%9A%84%E6%95%B0/">算法题：无序数组中返回第k大的数.md</a><li><a href="/superLish.github.io/posts/%E6%8E%92%E5%BA%8F/">排序</a><li><a href="/superLish.github.io/posts/%E7%BD%91%E7%BB%9C%E9%94%99%E8%AF%AF-Destination_unreachable-Host_administratively_prohibited/">网络错误:Destination_unreachable:Host_administratively_prohibited</a><li><a href="/superLish.github.io/posts/TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E5%88%86%E6%89%8B/">TCP三次握手与四次分手</a><li><a href="/superLish.github.io/posts/TCP%E7%9A%84%E5%B7%A5%E4%BD%9C%E9%80%BB%E8%BE%91/">谈谈TCP</a></ul></div><div id="access-tags"> <span>Trending Tags</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div></div></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/superLish.github.io/posts/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B/"><div class="card-body"> <span class="timeago small" > Feb 20, 2015 <i class="unloaded">2015-02-20T08:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>多线程编程</h3><div class="text-muted small"><p> 多线程编程可以说每个程序员的基本功，同时也是开发中的难点之一，下面讲述线程的创建及常用的几种线程同步的方式，最后对多线程编程进行了总结与思考并给出代码示例。 一、创建线程 多线程编程的第一步，创建线程。创建线程其实是增加了一个控制流程，使得同一进程中存在多个控制流程并发或者并行执行。 线程创建函数，其他函数这里不再列出，可以参考pthread.h。 1 2 3 4 5 6 7 8 #in...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/C++PrimerPlus%E7%AC%94%E8%AE%B0/"><div class="card-body"> <span class="timeago small" > Mar 12, 2015 <i class="unloaded">2015-03-12T08:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>《C++PrimerPlus》读书笔记</h3><div class="text-muted small"><p> 函数模板 函数模板是通用的函数描述，使用泛型来定义函数，其中的泛型可用具体的类型替换。通过将类型作为参数传递给模板，可使编译器生成该类型的函数。代码见附录function_template.cpp 显式具体化: 为特定类型提供具体化的模板定义，当编译器找到与函数调用匹配的具体化定义时，将使用该定义，而不再寻找模板。 对于给定的函数名，可以有非模板函数、模板函数和显式具体化模板函数以及...</p></div></div></a></div><div class="card"> <a href="/superLish.github.io/posts/%E7%AE%A1%E9%81%93/"><div class="card-body"> <span class="timeago small" > Apr 20, 2015 <i class="unloaded">2015-04-20T08:55:00+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Linux进程间通信——管道</h3><div class="text-muted small"><p> 管道 管道是一种最基本的进程间通信机制，由pipe函数创建： 1 2 #include &lt;unistd.h&gt; int pipe(int filedes[2]); 调用pipe函数时在内核中开辟一块缓冲区（称为管道）用于通信，它有一个读端一个写端，然后通过filedes参数传出给用户程序两个文件描述符，filedes[0]指向管道的读端，filedes[1]指向管道的写端。向这个...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/superLish.github.io/posts/C++%E4%B8%AD%E7%A9%BA%E7%B1%BB%E5%92%8C%E7%A9%BA%E7%BB%93%E6%9E%84%E4%BD%93%E5%A4%A7%E5%B0%8F%E7%9A%84%E9%97%AE%E9%A2%98/" class="btn btn-outline-primary" prompt="Older"><p>C++中空类和空结构体大小的问题</p></a> <a href="/superLish.github.io/posts/C++%E4%B8%AD%E5%89%8D%E7%BD%AE++%E4%B8%8E%E5%90%8E%E7%BD%AE++%E8%BF%90%E7%AE%97%E7%AC%A6%E9%87%8D%E8%BD%BD/" class="btn btn-outline-primary" prompt="Newer"><p>C++中前置++与后置++运算符重载</p></a></div></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2021 <a href="https://github.com/superLish">lisheng</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">Trending Tags</h4><a class="post-tag" href="/superLish.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a> <a class="post-tag" href="/superLish.github.io/tags/rust/">Rust</a> <a class="post-tag" href="/superLish.github.io/tags/crypto/">crypto</a> <a class="post-tag" href="/superLish.github.io/tags/blockchain/">Blockchain</a> <a class="post-tag" href="/superLish.github.io/tags/tcp-ip/">TCP/IP</a> <a class="post-tag" href="/superLish.github.io/tags/elk/">ELK</a> <a class="post-tag" href="/superLish.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a> <a class="post-tag" href="/superLish.github.io/tags/linux/">linux</a> <a class="post-tag" href="/superLish.github.io/tags/c/">C</a> <a class="post-tag" href="/superLish.github.io/tags/ethereum/">Ethereum</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/superLish.github.io/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://superLish.github.io{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>

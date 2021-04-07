@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "jekyll-theme-chirpy", "~> 3.2.0"
+gem "jekyll-theme-chirpy", "~> 3.3.0"
 # gem "jekyll", "~> 4.2.0"
 # gem "json", "~> 2.5"
 # gem "faraday", "~> 0.17"

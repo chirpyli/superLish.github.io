@@ -5,5 +5,4 @@ order: 4
 ---
 
 
-#### About Me
-Graduate from njau, now is a Rust developer.
+> **Note**: Add Markdown syntax content to file `_tabs/about.md` and it will show up on this page.
